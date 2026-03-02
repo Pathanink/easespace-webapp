@@ -1,0 +1,13 @@
+Flask
+firebase-admin
+google-generativeai
+python-dotenv
+torch
+transformers
+sentencepiece
+numpy
+wordcloud
+pythainlp
+matplotlib
+requests
+gunicorn

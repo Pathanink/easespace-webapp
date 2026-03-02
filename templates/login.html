@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EASESPACE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FFF9E6;
+            font-family: 'Kanit', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            color: #333333;
+            position: relative;
+        }
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            background-color: #FFFFF0;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+            text-align: center;
+        }
+        .header-logo {
+            width: 150px;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto; 
+        }
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #555555;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        #googleLogin {
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #googleLogin:hover:not(:disabled) {
+            background-color: #FF8C00;
+            transform: translateY(-2px);
+        }
+        #googleLogin:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 15px;
+            display: none;
+            font-size: 14px;
+        }
+        .error {
+            background-color: rgba(255, 69, 0, 0.1);
+            color: #FF4500;
+            border: 1px solid #FF8C00;
+        }
+        .success {
+            background-color: rgba(255, 215, 0, 0.1);
+            color: #333333;
+            border: 1px solid #FFD700;
+        }
+        .info {
+            background-color: rgba(255, 215, 0, 0.05);
+            color: #555555;
+            border: 1px solid #FFA500;
+        }
+        .debug {
+            background-color: #FFFDE7;
+            color: #333333;
+            border: 1px solid #FFD700;
+            font-size: 12px;
+            text-align: left;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            .header-logo {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="/static/logo_login.png" alt="EASESPACE" class="header-logo">
+        <h2>เข้าสู่ระบบ✨</h2>
+        <p>EASESPACE-พื้นที่เบาใจ วิเคราะห์อารมณ์จากบันทึกประจำวัน </p>
+        <button id="googleLogin">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path fill="#FFFFFF" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+                <path fill="#FFFFFF" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-2.7.75c-2.09 0-3.87-1.4-4.5-3.32H1.78v2.05A8 8 0 0 0 8.98 17z"/>
+                <path fill="#FFFFFF" d="M4.48 10.45c-.17-.51-.26-1.05-.26-1.6s.09-1.09.26-1.6V5.2H1.78a8 8 0 0 0 0 7.05l2.7-1.8z"/>
+                <path fill="#FFFFFF" d="M8.98 4.72c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.78 5.2L4.48 7.25c.63-1.91 2.41-3.32 4.5-3.32z"/>
+            </svg>
+            Login with Google
+        </button>
+        <div id="status"></div>
+        <div style="margin-top: 20px; border-top: 1px solid #EEE; padding-top: 15px;">
+            <a href="/admin" style="font-size: 12px; color: #999; text-decoration: none;">
+                🔐 ผู้ดูแลระบบ
+            </a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+
+    const firebaseConfig = {
+        apiKey: "{{ fb_config.apiKey }}",
+        authDomain: "{{ fb_config.authDomain }}",
+        projectId: "{{ fb_config.projectId }}",
+        storageBucket: "{{ fb_config.storageBucket }}",
+        messagingSenderId: "{{ fb_config.messagingSenderId }}",
+        appId: "{{ fb_config.appId }}",
+        measurementId: "{{ fb_config.measurementId }}"
+    };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        provider.setCustomParameters({
+            'prompt': 'select_account'
+        });
+
+        const loginButton = document.getElementById("googleLogin");
+        const status = document.getElementById("status");
+
+        function showStatus(message, type = 'info') {
+            status.innerHTML = message;
+            status.className = type;
+            status.style.display = 'block';
+        }
+
+        function clearStatus() {
+            status.innerHTML = '';
+            status.className = '';
+            status.style.display = 'none';
+        }
+
+        loginButton.addEventListener("click", async () => {
+            try {
+                loginButton.disabled = true;
+                clearStatus();
+                showStatus("กำลังเปิดหน้าต่างการเข้าสู่ระบบ...", 'info');
+               
+                const result = await signInWithPopup(auth, provider);
+                showStatus("กำลังสร้างโทเค็น...", 'info');
+                
+                const idToken = await result.user.getIdToken(true); 
+                
+                showStatus("กำลังส่งข้อมูลไปยังเซิร์ฟเวอร์...", 'info');
+                
+                console.log("User:", result.user.email);
+                console.log("Token length:", idToken.length);
+                console.log("Server URL:", window.location.origin + "/login");
+                
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ token: idToken })
+                });
+                
+                console.log("Response status:", response.status);
+                console.log("Response headers:", [...response.headers.entries()]);
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    console.error("Failed to parse JSON response:", e);
+                    throw new Error("เซิร์ฟเวอร์ส่งข้อมูลกลับมาไม่ถูกต้อง");
+                }
+                
+                console.log("Response data:", data);
+               
+                if (response.ok && data.success) {
+                    showStatus("เข้าสู่ระบบสำเร็จ! กำลังไปหน้าหลัก...", 'success');
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 1500);
+                } else {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+               
+            } catch (error) {
+                console.error("Login error:", error);
+                
+                let errorMessage = "เกิดข้อผิดพลาด: ";
+                let debugInfo = "";
+                
+                if (error.code === 'auth/unauthorized-domain') {
+                    errorMessage += "โดเมนไม่ได้รับอนุญาต";
+                    debugInfo = "กรุณาเพิ่ม " + window.location.hostname + " ใน Firebase Console";
+                } else if (error.code === 'auth/popup-blocked') {
+                    errorMessage += "ป๊อปอัพถูกบล็อก กรุณาอนุญาตป๊อปอัพ";
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage += "ผู้ใช้ปิดหน้าต่างการเข้าสู่ระบบ";
+                } else if (error.message.includes('fetch')) {
+                    errorMessage += "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้";
+                    debugInfo = "ตรวจสอบว่าเซิร์ฟเวอร์ Flask ทำงานอยู่";
+                } else {
+                    errorMessage += error.message;
+                    debugInfo = `URL: ${window.location.origin}/login<br>Time: ${new Date().toLocaleString()}`;
+                }
+                
+                showStatus(errorMessage + (debugInfo ? `<div class="debug">${debugInfo}</div>` : ''), 'error');
+                loginButton.disabled = false;
+            }
+        });
+
+        clearStatus();
+        
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server health:', data);
+            })
+            .catch(error => {
+                console.error('Server health check failed:', error);
+                showStatus('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบว่าเซิร์ฟเวอร์ทำงานอยู่', 'error');
+            });
+    </script>
+
+    <script>
+        function isInAppBrowser() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            return (ua.indexOf("FBAN") > -1) || 
+                   (ua.indexOf("FBAV") > -1) || 
+                   (ua.indexOf("Instagram") > -1) || 
+                   (ua.indexOf("Line") > -1);
+        }
+
+        if (isInAppBrowser()) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed; 
+                inset: 0; 
+                width: 100%; 
+                height: 100%;
+                background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+                z-index: 99999;
+                display: flex; 
+                flex-direction: column;
+                align-items: center; 
+                justify-content: center;
+                text-align: center; 
+                color: white; 
+                padding: 20px;
+                box-sizing: border-box; 
+                font-family: 'Kanit', sans-serif;
+                margin: 0;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
+                <h1 style="margin: 0 0 10px 0; font-size: 24px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">ไม่สามารถเข้าสู่ระบบผ่านแอปนี้</h1>
+                <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                    Google ไม่รองรับการล็อกอินผ่านเบราว์เซอร์ของ<br>LINE / Messenger / Facebook<br>เพื่อความปลอดภัย
+                </p>
+                <div style="background: white; color: #333; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 300px; width: 100%;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #FFA500;">วิธีแก้ไข 👇</p>
+                    <hr style="border: 0; border-top: 1px solid #EEE; margin: 10px 0;">
+                    <p style="margin: 0; font-size: 14px; text-align: left;">
+                        1. กดที่ปุ่ม <strong>จุด 3 จุด (⋮)</strong> หรือ <strong>แชร์ (Share)</strong> มุมบน<br><br>
+                        2. เลือก <strong>"เปิดในเบราว์เซอร์" (Open in Browser)</strong> หรือ <strong>Open in Chrome/Safari</strong>
+                    </p>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            const loginBtn = document.getElementById("googleLogin");
+            if(loginBtn) loginBtn.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

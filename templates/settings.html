@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตั้งค่า - EASESPACE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FFF9E6;
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #FFFFF0;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+        }
+        
+        .header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #FFD700;
+        position: relative; 
+    }
+        
+        
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        
+        background-color: #FFA500; 
+        color: #F0F0F0; 
+        border: none;
+        
+        padding: 10px 20px;
+        height: 44px; 
+        border-radius: 22px; 
+        
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        
+        flex-shrink: 0; 
+    }
+
+    .back-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .back-btn:hover {
+        background-color: #FF8C00; 
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
+    }
+
+    .back-btn:active {
+        transform: scale(0.95); 
+    }
+
+    .title {
+        margin: 0;
+        font-size: 26px;
+        flex-grow: 1; 
+    }
+        
+        .settings-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFA500;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .setting-item {
+            background: #FFFDE7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #FFD700;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+        
+        .setting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .setting-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+        }
+        
+        .setting-desc {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background-color: #FFA500;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+        
+        .time-input, .select-input, .number-input {
+            padding: 8px 12px;
+            border: 1px solid #FFD700;
+            border-radius: 8px;
+            font-family: 'Kanit', sans-serif;
+            margin-left: 10px;
+        }
+        
+        .danger-zone {
+            border: 2px solid #FF6B6B;
+            background: #FFF5F5;
+        }
+        
+        .danger-btn {
+            background-color: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            margin-right: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .danger-btn:hover {
+            background-color: #FF5252;
+        }
+        
+        .primary-btn {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #FFFFF0;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #FF6B6B;
+        }
+        
+        .modal-text {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #FFD700;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Kanit', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        .app-info {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .version {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .container {
+        padding: 25px 20px;
+        margin-top: 10px;
+        border-radius: 16px;
+    }
+
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255, 255, 240, 0.95); 
+        backdrop-filter: blur(10px); 
+        margin: -20px -20px 20px -20px; 
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        gap: 15px;
+    }
+
+    .back-btn {
+        width: 40px; 
+        height: 40px; 
+        padding: 0;   
+        border-radius: 50%; 
+        background-color: transparent; 
+    }
+
+    .back-btn .btn-text {
+        display: none; 
+    }
+    
+    .back-btn svg {
+        width: 24px;
+        height: 24px;
+        color: #333; 
+    }
+
+    .title {
+        font-size: 20px;
+        text-align: left; 
+    }
+
+    .setting-item {
+        padding: 15px;
+        border-radius: 12px;
+    }
+    .setting-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+    .setting-label { font-size: 15px; margin-bottom: 5px; }
+    .setting-desc { font-size: 12px; line-height: 1.4; }
+
+    .setting-item[style*="background: #E3F2FD"] .setting-header {
+        flex-direction: column; 
+        align-items: flex-start;
+    }
+    
+    .setting-item[style*="background: #E3F2FD"] div[style*="display: flex"] {
+        display: flex !important; 
+        width: 100%;              
+        gap: 10px;                
+    }
+
+    .setting-item[style*="background: #E3F2FD"] button {
+        flex: 1;           
+        width: 50%;        
+        margin: 0 !important; 
+        padding: 10px 0;   
+        text-align: center;
+        justify-content: center;
+    }
+
+    .time-input, .select-input, .number-input {
+        width: 100%;
+        margin: 10px 0 0 0;
+        padding: 10px;
+        font-size: 16px;
+        box-sizing: border-box; 
+    }
+
+    .primary-btn, .danger-btn {
+        width: 100%;
+        display: block;
+        margin-top: 15px;
+        padding: 12px;
+        font-size: 16px;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .toggle-switch { min-width: 50px; height: 28px; }
+    .toggle-slider { width: 22px; height: 22px; }
+    .toggle-switch.active .toggle-slider { transform: translateX(22px); }
+    
+    .modal-content { width: 90%; padding: 25px 20px; }
+    .modal-input { padding: 12px; font-size: 16px; }
+    .app-info { padding: 25px 15px; }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="btn-text">กลับหน้าหลัก</span>
+         </a>
+            <h1 class="title">⚙️ ตั้งค่า</h1>
+        </div>
+        
+        <div class="settings-section">
+            <div class="section-title">🔔 การแจ้งเตือน</div>
+            
+            
+        <div class="setting-item" style="background: #E3F2FD; border-color: #2196F3;">
+            <div class="setting-header">
+                <div>
+                    <div class="setting-label">🔔 การแจ้งเตือนแม้ออฟไลน์ (FCM)</div>
+                    <div class="setting-desc">แจ้งเตือนได้แม้ปิดหน้าเว็บหรือล็อคหน้าจอ</div>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button class="primary-btn" onclick="requestFcmPermission()" style="background: #2196F3; font-size: 14px; padding: 8px 15px;">
+                        เปิดใช้งาน
+                    </button>
+                    <button class="danger-btn" onclick="revokeFcmPermission()" style="background: #ff5252; font-size: 14px; padding: 8px 15px; margin: 0;">
+                        ปิด
+                    </button>
+                </div>
+            </div>
+            <div id="fcm-status" style="font-size: 12px; color: #666; margin-top: 5px;">สถานะ: กำลังตรวจสอบ...</div>
+        </div>
+
+            <div class="setting-item">
+                <div class="setting-header">
+                    <div>
+                        <div class="setting-label">แจ้งเตือนเขียนบันทึกประจำวัน</div>
+                        <div class="setting-desc">แจ้งเตือนให้เขียนบันทึกทุกวันในเวลาที่กำหนด</div>
+                    </div>
+                    <div class="toggle-switch" id="dailyToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div id="dailyTimeSection" style="display: none;">
+                    เวลา: <input type="time" class="time-input" id="dailyTime" value="{{ settings.notifications.daily_time or '19:00' }}">
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-header">
+                    <div>
+                        <div class="setting-label">แจ้งเตือนดูสรุปอารมณ์รายสัปดาห์</div>
+                        <div class="setting-desc">แจ้งเตือนให้ดูสรุปอารมณ์ทุกสัปดาห์</div>
+                    </div>
+                    <div class="toggle-switch" id="weeklyToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div id="weeklyDaySection" style="display: none;">
+                    วัน: <select class="select-input" id="weeklyDay">
+                        <option value="sunday">วันอาทิตย์</option>
+                        <option value="monday">วันจันทร์</option>
+                        <option value="tuesday">วันอังคาร</option>
+                        <option value="wednesday">วันพุธ</option>
+                        <option value="thursday">วันพฤหัสบดี</option>
+                        <option value="friday">วันศุกร์</option>
+                        <option value="saturday">วันเสาร์</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-header">
+                    <div>
+                        <div class="setting-label">แจ้งเตือนทำแบบประเมิน PHQ-9</div>
+                        <div class="setting-desc">แจ้งเตือนให้ทำแบบประเมินสุขภาพจิตทุกเดือน</div>
+                    </div>
+                    <div class="toggle-switch" id="monthlyToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                <div id="monthlyDateSection" style="display: none;">
+                    วันที่: <input type="number" class="number-input" id="monthlyDate" min="1" max="31" value="{{ settings.notifications.monthly_date or '1' }}">
+                </div>
+            </div>
+            
+            <button class="primary-btn" onclick="saveNotifications()">💾 บันทึกการตั้งค่า</button>
+        </div>
+        
+        <div class="settings-section">
+            <div class="section-title">🗑️ จัดการข้อมูล</div>
+            
+            <div class="setting-item danger-zone">
+                <div class="setting-label" style="color: #FF6B6B;">⚠️ ลบบัญชีถาวร</div>
+                <div class="setting-desc">การดำเนินการเหล่านี้ไม่สามารถย้อนกลับได้</div>
+                <div style="margin-top: 15px;">
+                    <button class="danger-btn" onclick="showDeleteAccountModal()">🗑️ ลบบัญชีถาวร</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <div class="section-title">📱 เกี่ยวกับแอป</div>
+            
+            <div class="app-info">
+                <div class="version">EASESPACE v1.0.0</div>
+                <div class="description">
+                    แอปบันทึกอารมณ์ด้วย AI ที่ช่วยให้คุณติดตามและดูแลสุขภาพใจของตัวเองอย่างต่อเนื่อง
+                    <br><br>
+                    <strong>เงื่อนไขการใช้งาน</strong><br>
+                    • ข้อมูลของคุณจะถูกเข้ารหัสและปกป้องอย่างปลอดภัย<br>
+                    • เราไม่แชร์ข้อมูลส่วนบุคคลของคุณกับบุคคลที่สาม<br>
+                    • แอปนี้ไม่ใช่เครื่องมือทางการแพทย์<br>
+                    • หากมีอาการรุนแรง โปรดปรึกษาผู้เชี่ยวชาญ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">⚠️ ลบบัญชีถาวร</div>
+            <div class="modal-text">
+                <strong>การกระทำนี้จะลบบัญชีและข้อมูลทั้งหมดของคุณอย่างถาวร!</strong><br><br>
+                ข้อมูลที่จะถูกลบ<br>
+                • บันทึกอารมณ์ทั้งหมด<br>
+                • การตั้งค่าทั้งหมด<br>
+                • บัญชีผู้ใช้<br><br>
+                
+                <div style="background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; font-size: 0.9em;">
+                <strong>ข้อควรระวัง:</strong> ระบบไม่มีการสำรองข้อมูลไว้ หากยืนยันแล้วข้อมูลจะหายไปทันทีและ <u>ไม่สามารถกู้คืนได้อีก</u>
+                </div>
+                <br>
+
+                พิมพ์ <strong>"DELETE MY ACCOUNT"</strong> เพื่อยืนยัน:
+            </div>
+            <input type="text" class="modal-input" id="deleteConfirmText" placeholder="DELETE MY ACCOUNT">
+            <div style="margin-top: 20px;">
+                <button class="danger-btn" onclick="confirmDeleteAccount()">ลบบัญชีถาวร</button>
+                <button class="primary-btn" onclick="closeModal('deleteAccountModal')">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+    
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js";
+
+  const firebaseConfig = {
+        apiKey: "{{ fb_config.apiKey }}",
+        authDomain: "{{ fb_config.authDomain }}",
+        projectId: "{{ fb_config.projectId }}",
+        storageBucket: "{{ fb_config.storageBucket }}",
+        messagingSenderId: "{{ fb_config.messagingSenderId }}",
+        appId: "{{ fb_config.appId }}",
+        measurementId: "{{ fb_config.measurementId }}"
+    };
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+
+  function checkNotificationStatus() {
+      const statusText = document.getElementById('fcm-status');
+      if (!statusText) return;
+
+      if (Notification.permission === 'granted') {
+          statusText.textContent = "สถานะ: ✅ เปิดใช้งานแล้ว ";
+          statusText.style.color = "green";
+      } else if (Notification.permission === 'denied') {
+          statusText.textContent = "สถานะ: 🚫 ถูกปิดกั้น (กรุณาเปิดในตั้งค่า Browser)";
+          statusText.style.color = "red";
+      } else {
+          statusText.textContent = "สถานะ: ยังไม่ได้เปิดใช้งาน";
+          statusText.style.color = "#666";
+      }
+  }
+  
+  checkNotificationStatus(); 
+
+  window.revokeFcmPermission = function() {
+      if(!confirm("ต้องการปิดการแจ้งเตือนทั้งหมดใช่ไหม?")) return;
+
+      fetch('/api/revoke_fcm_token', {
+          method: 'POST'
+      }).then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                const statusText = document.getElementById('fcm-status');
+                statusText.textContent = "สถานะ: ❌ ปิดใช้งานแล้ว";
+                statusText.style.color = "red";
+                alert("ปิดการแจ้งเตือนเรียบร้อย");
+            }
+        });
+  }
+
+  window.requestFcmPermission = function() {
+    const statusText = document.getElementById('fcm-status');
+    statusText.textContent = "สถานะ: กำลังขออนุญาต...";
+
+    Notification.requestPermission().then((permission) => {
+      checkNotificationStatus(); 
+
+      if (permission === 'granted') {
+        getToken(messaging, { vapidKey: 'BLyk-2TOUraTUbMdb50C6NQkrtrZdwY0tQSNiCBhDv8tCrkTGLXhAuuyAdkIO_wQjSEDtCVa2l3pUnGiEt0ZSGw' }).then((currentToken) => {
+          if (currentToken) {
+            console.log('FCM Token:', currentToken);
+            saveTokenToDatabase(currentToken);
+            statusText.textContent = "สถานะ: ✅ เชื่อมต่อสมบูรณ์";
+            statusText.style.color = "green";
+          } else {
+            console.log('No registration token available.');
+          }
+        }).catch((err) => {
+            console.log('An error occurred while retrieving token. ', err);
+        });
+      }
+    });
+  }
+
+  function saveTokenToDatabase(token) {
+      fetch('/api/save_fcm_token', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ token: token })
+      }).then(response => {
+          if(response.ok) console.log('Token saved to server!');
+      });
+  }
+</script>
+
+    <script>
+        const settings = {{ settings | tojson }};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = settings.notifications || {};
+            
+            setToggle('dailyToggle', notifications.daily_reminder);
+            setToggle('weeklyToggle', notifications.weekly_summary);
+            setToggle('monthlyToggle', notifications.monthly_phq9);
+            
+            document.getElementById('dailyTime').value = notifications.daily_time || '19:00';
+            document.getElementById('weeklyDay').value = notifications.weekly_day || 'sunday';
+            document.getElementById('monthlyDate').value = notifications.monthly_date || '1';
+            
+            showHideSection('dailyToggle', 'dailyTimeSection');
+            showHideSection('weeklyToggle', 'weeklyDaySection');
+            showHideSection('monthlyToggle', 'monthlyDateSection');
+        });
+        
+        function setToggle(toggleId, value) {
+            const toggle = document.getElementById(toggleId);
+            if (value) {
+                toggle.classList.add('active');
+            }
+        }
+        
+        function showHideSection(toggleId, sectionId) {
+            const toggle = document.getElementById(toggleId);
+            const section = document.getElementById(sectionId);
+            section.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+        }
+        
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                
+                if (this.id === 'dailyToggle') {
+                    showHideSection('dailyToggle', 'dailyTimeSection');
+                } else if (this.id === 'weeklyToggle') {
+                    showHideSection('weeklyToggle', 'weeklyDaySection');
+                } else if (this.id === 'monthlyToggle') {
+                    showHideSection('monthlyToggle', 'monthlyDateSection');
+                }
+            });
+        });
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        async function saveNotifications() {
+            const data = {
+                daily_reminder: document.getElementById('dailyToggle').classList.contains('active'),
+                daily_time: document.getElementById('dailyTime').value,
+                weekly_summary: document.getElementById('weeklyToggle').classList.contains('active'),
+                weekly_day: document.getElementById('weeklyDay').value,
+                monthly_phq9: document.getElementById('monthlyToggle').classList.contains('active'),
+                monthly_date: parseInt(document.getElementById('monthlyDate').value)
+            };
+            
+            try {
+                const response = await fetch('/settings/notifications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('✅ บันทึกการตั้งค่าเรียบร้อย');
+                } else {
+                    showToast('❌ ' + result.error);
+                }
+            } catch (error) {
+                showToast('❌ เกิดข้อผิดพลาด');
+            }
+        }
+        
+        function showDeleteAccountModal() {
+            document.getElementById('deleteAccountModal').style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'deleteAccountModal') {
+                document.getElementById('deleteConfirmText').value = '';
+            }
+        }
+        
+        async function confirmDeleteAccount() {
+            const confirmText = document.getElementById('deleteConfirmText').value;
+            
+            if (confirmText !== 'DELETE MY ACCOUNT') {
+                showToast('❌ กรุณาพิมพ์ "DELETE MY ACCOUNT" ให้ถูกต้อง');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/settings/delete_account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        confirmed: true,
+                        confirmation_text: confirmText
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                        showToast('✅ ลบบัญชีเรียบร้อย กำลังพาไปหน้าเข้าสู่ระบบ...');
+                        setTimeout(() => {
+                            if (result.redirect) {
+                                window.location.href = result.redirect;
+                            } else {
+                                window.location.href = '/login_page'; 
+                            }
+                        }, 2000);
+                    } else {
+                        showToast('❌ ' + result.error);
+                    }
+                } catch (error) {
+                    showToast('❌ เกิดข้อผิดพลาดในการลบบัญชี');
+                }
+                
+                closeModal('deleteAccountModal');
+            }
+        
+        function showToast(message) {
+            const oldToast = document.querySelector('.toast');
+            
+            if (oldToast) {
+                oldToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+       window.addEventListener('click', function(event) {
+           if (event.target.classList.contains('modal')) {
+               event.target.style.display = 'none';
+               if (event.target.id === 'deleteAccountModal') {
+                   document.getElementById('deleteConfirmText').value = '';
+               }
+           }
+       });
+       
+       document.addEventListener('keydown', function(e) {
+           if (e.key === 'Escape') {
+               document.querySelectorAll('.modal').forEach(modal => {
+                   modal.style.display = 'none';
+               });
+               document.getElementById('deleteConfirmText').value = '';
+           }
+       });
+   </script>
+</body>
+</html>

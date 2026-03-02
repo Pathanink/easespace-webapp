@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Bubble Bliss: Click Relieve</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff9800;
+            --secondary-color: #fdd835;
+            --bg-gradient: linear-gradient(135deg, #fff59d, #ffd54f);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
+            font-family: 'Kanit', sans-serif;
+            transition: background 2s ease;
+            color: #333;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 235, 59, 1), rgba(255, 255, 128, 0.9));
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: float 6s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.1s;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            -webkit-tap-highlight-color: transparent;
+            z-index: 10;
+        }
+
+        .bubble:active { transform: scale(0.9); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .bubble.pop { animation: pop 0.2s forwards; }
+        @keyframes pop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        #ui {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: auto;
+            min-width: 280px;
+        }
+
+        #ui.center {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #ui.top-left {
+            top: max(15px, env(safe-area-inset-top));
+            left: max(15px, env(safe-area-inset-left));
+            transform: none;
+            padding: 10px 15px;
+            min-width: auto; 
+            width: auto;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+        }
+
+        #gameTitle {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            line-height: 1;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        #gameTitle span {
+            font-size: 0.5em;
+            display: block;
+            color: #fbc02d;
+            font-weight: 600;
+        }
+
+        #ui.top-left #gameTitle {
+            display: none;
+        }
+
+        #modeSelector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        #ui.top-left #modeSelector {
+            margin: 5px 0;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        #modeSelector button {
+            background: linear-gradient(to bottom, #fff176, #ffd54f);
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            color: #5d4037;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+            font-size: 1rem;
+        }
+        
+        #ui.top-left #modeSelector button {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        #modeSelector button:active { transform: scale(0.96); }
+        #modeSelector button.active {
+            background: linear-gradient(to bottom, #ffca28, #ff8f00);
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stat-row {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #d84315;
+            margin: 5px 0;
+        }
+        
+        #ui.top-left .stat-row {
+            font-size: 1rem;
+            margin: 2px 0;
+            text-align: left;
+        }
+
+        #ui.top-left #highScoreDisplay {
+            display: none;
+        }
+
+        #utilityControls {
+            position: absolute;
+            top: max(15px, env(safe-area-inset-top));
+            right: max(15px, env(safe-area-inset-right));
+            display: flex;
+            gap: 8px;
+            z-index: 101;
+        }
+        
+        #utilityControls button, #exitButton {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            color: #555;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        #utilityControls button:active { transform: scale(0.9); }
+
+        #timeProgress {
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        .progress-bar {
+            position: relative;
+            width: 100%;
+            height: 25px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: inherit;
+            transition: width 0.3s ease, background 0.3s ease;
+            width: 100%;
+        }
+
+        .time-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 800;
+            color: #333;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 0 white;
+            z-index: 1;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #ff9800, #ffca28);
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #d32f2f, #ff5722);
+            animation: pulse 0.3s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+
+        #ui.top-left .progress-bar {
+            height: 20px;
+            margin: 3px 0;
+        }
+
+        #ui.top-left .time-text {
+            font-size: 0.8rem;
+        }
+
+        #guidance {
+            position: fixed;
+            bottom: max(30px, env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            opacity: 0;
+            transition: 0.3s;
+            pointer-events: none;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        #guidance.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        #endGamePopup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        #endGamePopup.show { opacity: 1; pointer-events: auto; }
+        
+        .popup-card {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            width: 80%;
+            max-width: 320px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #endGamePopup.show .popup-card { transform: scale(1); }
+        
+        .popup-card h2 { color: var(--primary-color); margin: 0 0 10px; font-size: 2rem; }
+        .popup-card .score-big { font-size: 3rem; font-weight: 800; color: #333; margin: 10px 0; }
+        .popup-card button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 12px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .popup-card button:active { transform: scale(0.95); }
+
+        .combo-text {
+            position: absolute;
+            font-weight: 900;
+            color: #ff3d00;
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            text-shadow: 2px 2px 0 white;
+            z-index: 50;
+        }
+        @keyframes floatUp {
+            to { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 8px; height: 8px;
+            background: gold;
+            border-radius: 50%;
+            animation: burst 0.5s forwards;
+            pointer-events: none;
+        }
+        @keyframes burst {
+            to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+       
+@media (max-width: 600px) {
+    #ui.top-left {
+        transform: scale(1);
+        transform-origin: top left;
+        left: max(8px, env(safe-area-inset-left));
+        top: max(8px, env(safe-area-inset-top));
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(10px);
+        margin-right: 50px;
+    }
+    
+    .score-multiplier {
+        font-size: 0.25rem;
+    }
+
+    #ui.top-left .stat-row {
+        font-size: 0.9rem;
+        margin: 1px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    #ui.top-left #modeSelector button {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        border-radius: 8px;
+    }
+    
+    #utilityControls {
+        top: max(8px, env(safe-area-inset-top));
+        right: max(8px, env(safe-area-inset-right));
+        gap: 4px; 
+        flex-direction: column;
+        transform: scale(1); 
+        transform-origin: top right; 
+    }
+    
+    #utilityControls button, #utilityControls #exitButton {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+
+    .popup-card {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    .popup-card h2 { font-size: 1.5rem; }
+    .popup-card .score-big { font-size: 2.5rem; }
+
+}
+
+
+@media (max-height: 500px) and (orientation: landscape) {
+    #ui.top-left {
+        transform: scale(0.75);
+        margin-right: 40px; 
+    }
+    
+    #utilityControls {
+        flex-direction: row;
+        gap: 2px;
+        transform: scale(0.75); 
+    }
+    
+    #utilityControls button, #utilityControls #exitButton {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+}
+    </style>
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <div id="utilityControls">
+        <button id="pauseButton" onclick="togglePause()" style="display:none;">
+            <i class="fas fa-pause"></i>
+        </button>
+        <button onclick="changeVolume(0.1)" title="เพิ่มเสียง">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        <button onclick="changeVolume(-0.1)" title="ลดเสียง">
+            <i class="fas fa-volume-down"></i>
+        </button> 
+        <button onclick="toggleMute()" title="เปิด/ปิดเสียง">
+            <i class="fas fa-volume-mute"></i>
+        </button>
+        <a href="/" id="exitButton" title="ออกจากเกม" style="text-decoration:none; display:flex; align-items:center; justify-content:center; color:#d32f2f;">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+
+    <div id="ui" class="center">
+        <div id="gameTitle">Bubble Bliss <span>Click Relieve</span></div>
+
+        <div id="modeSelector">
+            <button id="freeModeBtn" onclick="startFreeMode()">Free Mode 🌟</button>
+            <button id="challengeModeBtn" onclick="startChallengeMode()">Challenge 30s ⏳</button>
+        </div>
+
+        <div id="highScoreDisplay" style="font-size:0.9rem; color:#888; margin-bottom:5px;">
+            High Score: <span id="highScoreVal">0</span> 🏆
+        </div>
+
+        <div id="gameStats">
+            <div id="timeProgress" style="display:none;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                    <span class="time-text">30s</span>
+                </div>
+            </div>
+            <div class="stat-row">แต้ม: <span id="currentScoreVal">0</span> ⭐</div>
+            <div class="stat-row" id="timeDisplay" style="font-size:0.9rem; color:#555;">เวลา: --</div>
+            <div class="stat-row" id="comboDisplay" style="color:#ff6f00; ">Combo: 0 🔥</div>
+        </div>
+    </div>
+
+    <div id="guidance">เริ่มเกมเลย!</div>
+
+    <div id="endGamePopup">
+        <div class="popup-card">
+            <h2>จบเกม</h2>
+            <div class="score-big" id="finalScoreVal">0</div>
+            <p>แต้มสูงสุด: <span id="finalHighScoreVal">0</span></p>
+            <button onclick="resetAndHidePopup()">เล่นอีกครั้ง</button>
+        </div>
+    </div>
+
+    <audio id="bgm" src="/static/sound/relax.mp3" loop></audio>
+    <audio id="popSound" src="/static/sound/pop.mp3"></audio>
+    <audio id="comboSound" src="/static/sound/combo_reward.mp3"></audio>
+
+    <script>
+        const container = document.getElementById('container');
+        const ui = document.getElementById('ui');
+        const uiStats = document.getElementById('gameStats');
+        const scoreEl = document.getElementById('currentScoreVal');
+        const timeEl = document.getElementById('timeDisplay');
+        const comboEl = document.getElementById('comboDisplay');
+        const guidanceEl = document.getElementById('guidance');
+        const timeProgress = document.getElementById('timeProgress');
+        const popup = document.getElementById('endGamePopup');
+        const pauseBtn = document.getElementById('pauseButton');
+        
+        let score = 0, combo = 0, lastClick = 0;
+        let isPaused = false, mode = 'none';
+        let gameTimer, spawnTimer;
+        let timeLeft = 0, playTime = 0;
+        let highScore = parseInt(localStorage.getItem('bb_highscore')) || 0;
+        
+        document.getElementById('highScoreVal').innerText = highScore;
+        
+        function updateUIState(state) {
+            if (state === 'menu') {
+                ui.className = 'center';
+                pauseBtn.style.display = 'none';
+                document.getElementById('freeModeBtn').classList.remove('active');
+                document.getElementById('challengeModeBtn').classList.remove('active');
+            } else {
+                ui.className = 'top-left';
+                pauseBtn.style.display = 'flex';
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+        }
+
+        function createBubble() {
+            if (isPaused) return;
+
+            const isMobile = window.innerWidth < 600;
+            const baseSize = isMobile ? 50 : 60;
+            const randomSize = Math.random() * (isMobile ? 50 : 70);
+            
+            const size = baseSize + randomSize;
+            
+            let x, y;
+            let safe = false;
+            let attempts = 0;
+
+            const uiRect = ui.getBoundingClientRect();
+            const utilityRect = document.getElementById('utilityControls').getBoundingClientRect();
+            
+            while (!safe && attempts < 10) {
+                x = Math.random() * (window.innerWidth - size);
+                y = Math.random() * (window.innerHeight - size);
+                
+                if (ui.classList.contains('top-left')) {
+                    const clearOfUI = x > uiRect.right || y > uiRect.bottom;
+                    const clearOfUtility = x + size < utilityRect.left || y > utilityRect.bottom;
+                    safe = clearOfUI && clearOfUtility;
+                } else {
+                    safe = true;
+                }
+                attempts++;
+            }
+
+            const b = document.createElement('div');
+            b.className = 'bubble';
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.left = x + 'px';
+            b.style.top = y + 'px';
+            
+            const hue = 40 + Math.random() * 20; 
+            b.style.background = `linear-gradient(135deg, hsl(${hue}, 100%, 70%), hsl(${hue-10}, 100%, 60%))`;
+
+            b.onclick = (e) => popBubble(b, e);
+            b.ontouchstart = (e) => { e.preventDefault(); popBubble(b, e.touches[0]); };
+            
+            container.appendChild(b);
+
+            setTimeout(() => { if(b.parentNode) b.remove(); }, 6000);
+        }
+
+        function popBubble(el, e) {
+            if (isPaused || el.classList.contains('pop')) return;
+            
+            const s = document.getElementById('popSound');
+            if (s) { s.currentTime = 0; s.play().catch(()=>{}); }
+
+            el.classList.add('pop');
+            setTimeout(() => el.remove(), 200);
+
+            score++;
+            scoreEl.innerText = score;
+
+            const now = Date.now();
+            if (now - lastClick < 1200) {
+                combo++;
+                if (combo > 1) showFloatingText(e.clientX, e.clientY, `x${combo}`);
+                if (combo % 10 === 0) {
+                     const cs = document.getElementById('comboSound');
+                     if(cs) cs.play().catch(()=>{});
+                     //showGuidance(`Super! ${combo} Combo!`);
+                }
+            } else {
+                combo = 1;
+            }
+            lastClick = now;
+            comboEl.innerText = `Combo: ${combo} 🔥`;
+            
+            createSparkles(e.clientX, e.clientY);
+        }
+
+        function showFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'combo-text';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.innerText = text;
+            el.style.fontSize = Math.min(2 + (combo * 0.1), 4) + 'rem';
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function createSparkles(x, y) {
+            for(let i=0; i<8; i++) {
+                const s = document.createElement('div');
+                s.className = 'sparkle';
+                s.style.left = x + 'px';
+                s.style.top = y + 'px';
+                s.style.setProperty('--tx', (Math.random()*100 - 50) + 'px');
+                s.style.setProperty('--ty', (Math.random()*100 - 50) + 'px');
+                container.appendChild(s);
+                setTimeout(() => s.remove(), 500);
+            }
+        }
+
+        function startFreeMode() {
+            resetGame();
+            mode = 'free';
+            updateUIState('playing');
+            document.getElementById('freeModeBtn').classList.add('active');
+            timeEl.innerText = 'เวลา: ∞';
+            timeProgress.style.display = 'none';
+            
+            spawnTimer = setInterval(createBubble, 300);
+            gameTimer = setInterval(() => {
+                playTime++;
+            }, 1000);
+            
+            playBGM();
+        }
+
+        function startChallengeMode() {
+            resetGame();
+            mode = 'challenge';
+            updateUIState('playing');
+            document.getElementById('challengeModeBtn').classList.add('active');
+            
+            timeLeft = 30;
+            timeProgress.style.display = 'block';
+            updateTimeProgress(30);
+
+            spawnTimer = setInterval(createBubble, 300);
+            gameTimer = setInterval(() => {
+                if (!isPaused) {
+                    timeLeft--;
+                    updateTimeProgress(timeLeft);
+                    timeEl.innerText = `เวลา: ${timeLeft}s`;
+                    if (timeLeft <= 0) endGame();
+                }
+            }, 1000);
+
+            playBGM();
+        }
+
+        function updateTimeProgress(val) {
+            const progressFill = timeProgress.querySelector('.progress-fill');
+            const timeText = timeProgress.querySelector('.time-text');
+            
+            const displayText = val > 0 ? `${val}s` : '0s';
+            timeText.innerText = displayText;
+            
+            const percentage = Math.max(0, (val / 30) * 100);
+            progressFill.style.width = percentage + '%';
+            
+            progressFill.className = 'progress-fill';
+            if (val <= 5 && val > 0) {
+                progressFill.classList.add('danger');
+            } else if (val <= 10 && val > 0) {
+                progressFill.classList.add('warning');
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                clearInterval(spawnTimer);
+                showGuidance("พักแป๊บ...");
+                document.getElementById('bgm').pause();
+                document.querySelectorAll('.bubble').forEach(b => b.style.animationPlayState = 'paused');
+            } else {
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                if (mode === 'free') spawnTimer = setInterval(createBubble, 400);
+                else spawnTimer = setInterval(createBubble, 300);
+                document.getElementById('bgm').play().catch(()=>{});
+                document.querySelectorAll('.bubble').forEach(b => b.style.animationPlayState = 'running');
+            }
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('bb_highscore', highScore);
+                document.getElementById('highScoreVal').innerText = highScore;
+            }
+            
+            document.getElementById('finalScoreVal').innerText = score;
+            document.getElementById('finalHighScoreVal').innerText = highScore;
+            popup.classList.add('show');
+            document.getElementById('bgm').pause();
+        }
+
+        function resetGame() {
+            score = 0; combo = 0; playTime = 0;
+            scoreEl.innerText = '0';
+            comboEl.innerText = 'Combo: 0 🔥';
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            container.innerHTML = '';
+            popup.classList.remove('show');
+            isPaused = false;
+        }
+        
+        function resetAndHidePopup() {
+            resetGame();
+            updateUIState('menu');
+        }
+
+        function playBGM() {
+            const bgm = document.getElementById('bgm');
+            bgm.volume = 0.3;
+            bgm.play().catch(() => console.log('Auto-play prevented'));
+        }
+
+        function changeVolume(delta) {
+            const audios = document.querySelectorAll('audio');
+            let newVolume = 0;
+            
+            audios.forEach(a => {
+                newVolume = Math.max(0, Math.min(1, a.volume + delta));
+                a.volume = newVolume;
+            });
+            
+            const volumePercent = Math.round(newVolume * 100);
+            const volumeIcon = volumePercent === 0 ? '🔇' : volumePercent < 50 ? '🔉' : '🔊';
+            showGuidance(`Volume: ${volumePercent}% ${volumeIcon}`);
+        }
+        
+        function toggleMute() {
+             const audios = document.querySelectorAll('audio');
+             audios.forEach(a => a.muted = !a.muted);
+             showGuidance(audios[0].muted ? "Muted 🔇" : "Unmuted 🔊");
+        }
+        
+        function showGuidance(msg) {
+            guidanceEl.innerText = msg;
+            guidanceEl.classList.add('show');
+            setTimeout(() => guidanceEl.classList.remove('show'), 1500);
+        }
+
+        showGuidance("เลือกโหมดเกมเลย!");
+
+    </script>
+</body>
+</html>

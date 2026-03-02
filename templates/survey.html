@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASESPACE - แบบประเมินสุขภาพจิตเบื้องต้น</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FFF9E6; 
+            font-family: 'Kanit', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header-logo {
+            position: absolute;
+            top: 20px;
+            right: 5px;
+            width: 120px;
+            height: auto;
+            transition: transform 0.3s;
+        }
+        .header-logo:hover { transform: scale(1.1); }
+
+        .container {
+            max-width: 700px; 
+            width: 100%;
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .sparkle {
+            font-size: 20px;
+            opacity: 0.8;
+            animation: sparkleAnim 2s infinite;
+        }
+
+        .profile-toggle {
+            position: fixed; top: 20px; left: 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white; border: none; padding: 12px 15px; border-radius: 50%;
+            cursor: pointer; transition: all 0.3s ease; z-index: 1000;
+            font-size: 16px; box-shadow: 0 4px 8px rgba(255, 165, 0, 0.2);
+        }
+        .profile-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 12px rgba(255, 165, 0, 0.3); }
+
+        .sidebar {
+            position: fixed; left: -300px; top: 0; width: 300px; height: 100vh;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            transition: left 0.3s ease; z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar.open { left: 0; }
+        .sidebar-header { padding: 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; }
+        .profile-avatar {
+            width: 80px; height: 80px; border-radius: 50%; background-color: #FFF9E6;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; margin-bottom: 15px;
+        }
+        .profile-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .profile-email { font-size: 14px; opacity: 0.9; }
+        .sidebar-menu { padding: 20px 0; }
+        .menu-item {
+            display: block; padding: 15px 20px; color: white; text-decoration: none;
+            transition: background-color 0.3s ease; border: none; width: 100%;
+            text-align: left; background: none; font-size: 16px; cursor: pointer;
+            box-sizing: border-box; border-radius: 8px;
+        }
+        .menu-item:hover { background-color: rgba(255,255,255,0.1); }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(0,0,0,0.5); z-index: 1000; opacity: 0;
+            visibility: hidden; transition: all 0.3s ease;
+        }
+        .overlay.show { opacity: 1; visibility: visible; }
+
+        .modal {
+            display: none; position: fixed; z-index: 4000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #FFFFF0 0%, #FFF9E6 100%);
+            margin: 20px auto; padding: 30px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(255, 165, 0, 0.3); width: 90%; max-width: 500px;
+            text-align: left; max-height: 90vh; overflow-y: auto; overflow-y: auto;
+            animation: fadeIn 0.4s; 
+        }
+        .modal-header { font-size: 24px; font-weight: 600; color: #FFA500; margin-bottom: 20px; text-align: center; }
+        .modal-body { font-size: 15px; color: #333333; line-height: 1.6; margin-bottom: 25px; }
+        .warning-section { background-color: #FFE4E1; border-left: 4px solid #FF6B6B; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .privacy-section { background-color: #E8F5E8; border-left: 4px solid #28A745; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .emergency-section { background-color: #FFF3CD; border-left: 4px solid #F39C12; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .modal-button {
+            background-color: #FFA500; color: white; border: none; padding: 12px 30px;
+            border-radius: 30px; font-size: 16px; cursor: pointer; transition: background-color 0.3s ease; text-decoration: none;
+        }
+        .modal-button:hover { background-color: #FF8C00; }
+        .modal-button.secondary { background-color: #6C757D; }
+        .modal-button.secondary:hover { background-color: #5A6268; }
+  
+        .question-card {
+            background: #FAFAFA;
+            border: 1px solid #EEEEEE;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: #FFFFFF;
+            border-color: #FFD700;
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: block;
+            color: #333;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+            gap: 8px;
+        }
+        .options-grid input[type="radio"] { display: none; }
+        
+        .options-grid label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 5px;
+            background: #FFFFFF;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            height: 100%;
+
+            white-space: normal; 
+            word-wrap: break-word;
+            box-sizing: border-box;
+        }
+        .options-grid label:hover {
+            border-color: #FFD700;
+            background-color: #FFFDF0;
+        }
+        .options-grid input[type="radio"]:checked + label {
+            border-color: #FFA500;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3);
+            font-weight: 600;
+        }
+
+        button[type="submit"].submit-btn {
+            background-color: #FFA500;
+            color: white;
+            border-radius: 30px;
+            font-size: 20px;
+            padding: 12px 30px;
+            border: none;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+            width: 100%;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(255, 165, 0, 0.2);
+        }
+        button[type="submit"].submit-btn:hover {
+            background-color: #FF8C00;
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 40px;
+            padding: 40px;
+            background: linear-gradient(to bottom right, #FFFFFF, #FFF9E6);
+            border-radius: 20px;
+            border: 2px solid #FFD700;
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .result-score { font-size: 20px; color: #555; }
+        .result-emoji { font-size: 80px; margin: 15px 0; animation: bounce 2s infinite; }
+        .result-level { font-size: 32px; font-weight: 700; color: #FFA500; margin-bottom: 15px; }
+        .advice-text { font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
+        
+        .resources-box {
+            background: #FFF5F5;
+            border-left: 4px solid #FF6B6B;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .disclaimer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777777;
+            text-align: center;
+            line-height: 1.4;
+            padding: 10px;
+            border-top: 1px solid #FFD700;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes sparkleAnim { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+
+@media (max-width: 1024px) {
+    .header-logo {
+        display: none !important;
+    }
+    .options-grid label {
+        font-size: 20px;   
+        line-height: 1.4;
+    }
+    .container p {
+        font-size: 20px;
+    }
+
+    .question-text {
+        font-size: 20px;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+    
+    }
+
+@media (max-width: 600px) {
+    
+    .container {
+        padding: 25px 15px;
+        margin-top: 60px;
+        border-radius: 16px;
+        max-width: 95%;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    .container p {
+        font-size: 13px;
+    }
+    .profile-toggle {
+        position: absolute !important;
+        top: calc(20px + env(safe-area-inset-top)) !important; 
+        left: 20px !important;
+        
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 18px !important;
+        
+        margin: 0 !important;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+        box-shadow: 0 4px 8px rgba(255, 165, 0, 0.2) !important;
+        z-index: 3000 !important; 
+    }
+
+   .header-logo {
+        display: none !important;
+    }
+    
+    .sidebar {
+        width: 85%;
+        max-width: 300px;
+        left: -100%; 
+    }
+    
+    .profile-toggle span,
+    .profile-toggle .text {
+        display: none;         
+    }
+    .sidebar-header {
+        padding-top: 80px; 
+    }
+
+    .title {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .question-card {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+    }
+
+    .question-text {
+        font-size: 16px;
+        margin-bottom: 12px;
+        line-height: 1.4;
+    }
+
+    .options-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
+    button[type="submit"].submit-btn {
+        width: 100%;
+        font-size: 18px;
+        padding: 12px;
+        margin-top: 20px;
+    }
+
+    .result-box {
+        padding: 25px 15px;
+        margin-top: 30px;
+        border-radius: 16px;
+    }
+
+    .result-emoji { font-size: 60px; margin: 10px 0; }
+    .result-level { font-size: 24px; margin-bottom: 10px; }
+    .advice-text { font-size: 15px; text-align: left; }
+
+    .modal-content {
+        width: 90%;          
+        max-width: 360px;    
+        margin: 10% auto;
+        padding: 16px;       
+    }
+    
+    .options-grid label {
+        font-size: 14px;   
+        line-height: 1.4;
+    }
+    
+    .modal-header {
+        font-size: 16px;     
+        margin-bottom: 10px;
+    }
+
+    .modal-body {
+        font-size: 12px;    
+        padding-right: 0;
+    }
+
+    .warning-section,
+    .emergency-section,
+    .privacy-section,
+    .agree-section {
+        padding: 10px;       
+        margin: 8px 0;       
+        font-size: 11px;     
+    }
+
+    .modal-buttons {
+        gap: 8px;            
+    }
+
+    .modal-button {
+        width: 100%;
+        padding: 10px;       
+        font-size: 14px;     
+    }
+}
+    </style>
+</head>
+<body>
+     
+     <div id="welcomeModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">📋 แบบประเมินสุขภาพจิตเบื้องต้น (PHQ-9)</div>
+    <div class="modal-body">
+      
+      <div class="warning-section">
+        <strong>⚠️ คำเตือนสำคัญด้านการแพทย์</strong><br>
+        • แบบประเมินนี้เป็นเพียงเครื่องมือคัดกรองเบื้องต้น <strong>ไม่ใช่การวินิจฉัยหรือการรักษาทางการแพทย์</strong><br>
+        • ผลลัพธ์ที่ได้มีไว้เพื่อให้คุณเข้าใจสภาวะสุขภาพจิตของตนเองเท่านั้น<br>
+        • <strong>ไม่สามารถใช้ทดแทนการปรึกษาแพทย์ผู้เชี่ยวชาญได้</strong><br>
+        • หากคุณรู้สึกว่ามีอาการรุนแรง เช่น ซึมเศร้า ไม่อยากมีชีวิตอยู่ คิดทำร้ายตนเอง<br>
+        <strong>โปรดติดต่อขอรับความช่วยเหลือทันที</strong>
+      </div>
+
+      <div class="emergency-section">
+        <strong>📞 หมายเลขฉุกเฉิน</strong><br>
+        • สายด่วนสุขภาพจิต: <strong>1323</strong> (24 ชั่วโมง)<br>
+        • สายด่วนแห่งชีวิต สธ.: <strong>1422</strong><br>
+        • ศูนย์ปรึกษาปัญหาใจ กรมสุขภาพจิต: <strong>1667</strong><br>
+        • ฉุกเฉิน: <strong>1669, 191</strong>
+      </div>
+
+      <div class="privacy-section">
+        <strong>🔒 ความเป็นส่วนตัว</strong><br>
+        • เราไม่ได้บันทึกหรือเก็บข้อมูลคำตอบของคุณไว้<br>
+        • การประเมินผลทำงานแบบเรียลไทม์บนเบราว์เซอร์ของคุณ<br>
+        • ข้อมูลจะหายไปทันทีเมื่อคุณปิดหน้านี้<br>
+        • <strong>ความเป็นส่วนตัวของคุณได้รับการปกป้อง 100%</strong>
+      </div>
+
+      <div style="background-color: #F8F9FA; padding: 15px; border-radius: 5px; margin: 15px 0;" class="agree-section">
+        <strong>✅ ข้อความยืนยัน</strong><br>
+        โดยการกด "เข้าใจและเริ่มประเมิน" คุณยืนยันว่า<br>
+        • ได้อ่านและเข้าใจคำเตือนด้านการแพทย์<br>
+        • เข้าใจว่าเครื่องมือนี้ไม่ใช่การวินิจฉัยทางการแพทย์<br>
+        • เข้าใจว่าการประเมินนี้ไม่มีการเก็บข้อมูล<br>
+      </div>
+    </div>
+    
+    <div class="modal-buttons">
+        <button class="modal-button" onclick="closeModal()">เข้าใจและเริ่มประเมิน</button>
+        <button class="modal-button secondary" onclick="window.location.href='/'">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+    <button class="profile-toggle" onclick="toggleSidebar()">👤</button>
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-avatar">
+                {{ session.user.name[0].upper() if session.user.name else '👤' }}
+            </div>
+            <div class="profile-name">{{ session.user.name or 'ผู้ใช้งาน' }}</div>
+            <div class="profile-email">{{ session.user.email }}</div>
+        </div>
+    <div class="sidebar-menu">
+            <a href="/" class="menu-item">🏠 หน้าหลัก</a>
+            <a href="/mood_summary" class="menu-item">📊 แดชบอร์ดอารมณ์</a>
+            <a href="/game" class="menu-item">🎮 Bubble Bliss</a>
+            <a href="/achievements" class="menu-item">🏆 เหรียญรางวัล</a>
+            <a href="/survey" class="menu-item">✨ แบบประเมิน PHQ-9</a>
+            <a href="https://forms.gle/mMMBrPmSvQaRmzRA9"
+            class="menu-item"
+            target="_blank"
+            rel="noopener noreferrer">
+            📝 แบบประเมินความพึงพอใจ
+            </a>
+            <a href="/settings" class="menu-item">⚙️ ตั้งค่า</a> 
+            <a href="/logout" class="menu-item">🚪 ออกจากระบบ</a>
+        </div>
+    </div>
+
+       <a href="/">
+    <img src="/static/logo.png" alt="EASESPACE" class="header-logo">
+    </a>
+    
+    
+    <div class="container">
+        <div class="title">📋 เช็คสุขภาพใจ (PHQ-9) <span class="sparkle">✨</span></div>
+        <p style="text-align: center; color: #777; margin-bottom: 30px;">ในช่วง 2 สัปดาห์ที่ผ่านมา คุณรู้สึกอย่างไรกับอาการเหล่านี้?</p>
+
+        <form method="POST">
+            {% for question in questions %}
+                <div class="question-card">
+                    <span class="question-text">{{ loop.index }}. {{ question }}</span>
+                    
+                    <div class="options-grid">
+                        <input type="radio" name="q{{ loop.index }}" id="q{{ loop.index }}_0" value="0" required>
+                        <label for="q{{ loop.index }}_0">😊<br>ไม่เลย</label>
+
+                        <input type="radio" name="q{{ loop.index }}" id="q{{ loop.index }}_1" value="1">
+                        <label for="q{{ loop.index }}_1">😐<br>บางวัน</label>
+
+                        <input type="radio" name="q{{ loop.index }}" id="q{{ loop.index }}_2" value="2">
+                        <label for="q{{ loop.index }}_2">😔<br>บ่อยครั้ง</label>
+
+                        <input type="radio" name="q{{ loop.index }}" id="q{{ loop.index }}_3" value="3">
+                        <label for="q{{ loop.index }}_3">😫<br>ทุกวัน</label>
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit" class="submit-btn">✨ ดูผลการประเมิน</button>
+        </form>
+
+        {% if result %}
+            <div id="result-focus" class="result-box">
+                <div class="result-header">ผลประเมินของคุณ</div>
+                <div style="font-size: 80px; margin: 20px 0;">{{ result.emoji }}</div>
+                <h2 style="color: #FFA500;">ระดับ: {{ result.level }}</h2>
+                <p style="font-size: 18px;">{{ result.advice }}</p>
+                <p style="color: #999; font-size: 14px;">คะแนนรวม: {{ result.score }}</p>
+                
+                {% if result.resources %}
+                    <div style="background: white; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: left; border-left: 4px solid #FF6B6B;">
+                        <strong>🆘 แหล่งช่วยเหลือ:</strong><br>
+                        {{ result.resources | safe }}
+                    </div>
+                {% endif %}
+                
+                <div style="margin-top: 30px;">
+                    <a href="/" class="modal-button" style="text-decoration: none;">กลับหน้าหลัก</a>
+                    <a href="/survey" class="modal-button secondary" style="text-decoration: none;">ทำใหม่</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="disclaimer">
+        <strong>⚠️คำเตือน:</strong> แบบประเมินนี้เป็นเพียงเครื่องมือเบื้องต้น ไม่ใช่การวินิจฉัยทางการแพทย์  
+    </div>
+
+</body>
+
+ <script>         
+            function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const profileBtn = document.querySelector('.profile-toggle');
+
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+
+            if (sidebar.classList.contains('open')) {
+            profileBtn.style.opacity = '0';
+            profileBtn.style.pointerEvents = 'none'; 
+            } else {
+                profileBtn.style.opacity = '1';
+                profileBtn.style.pointerEvents = 'auto';
+            }
+
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const profileBtn = document.querySelector('.profile-toggle');
+
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+
+            profileBtn.style.opacity = '1';
+            profileBtn.style.pointerEvents = 'auto';
+
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSidebar();
+                const modal = document.getElementById('welcomeModal');
+                if (modal.style.display === 'block') {
+                    window.location.href = '/';
+                }
+            }
+        });
+
+    function openModal() {
+        document.getElementById('welcomeModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('welcomeModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('welcomeModal');
+        if (event.target == modal) {
+            return false;
+        }
+    }
+
+    window.onload = function() {
+        {% if result %}
+            closeModal(); 
+            const resultElement = document.getElementById('result-focus');
+            if (resultElement) {
+                resultElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        {% else %}
+            openModal(); 
+        {% endif %}
+    };
+    </script>
+</html>

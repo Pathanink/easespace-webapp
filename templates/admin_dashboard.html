@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASESPACE - Admin Center</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #FFF9E6; 
+            font-family: 'Kanit', sans-serif;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            transition: left 0.3s ease;
+            z-index: 1001;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar.open { left: 0; }
+
+        .sidebar-header {
+            padding: 40px 20px 20px;
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .admin-avatar {
+            width: 80px; height: 80px;
+            background: #FFF9E6;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 25px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            font-size: 1.1rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.2); }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 0; visibility: hidden;
+            transition: 0.3s;
+        }
+        .overlay.show { opacity: 1; visibility: visible; }
+
+        .toggle-btn {
+            position: fixed; top: 20px; left: 20px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border: none; color: white;
+            padding: 10px 15px; border-radius: 50%;
+            cursor: pointer; z-index: 999;
+            box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3);
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+        .toggle-btn:hover { transform: scale(1.1); }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+        }
+
+        .header-card {
+            background: #FFFFF0;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        .header-card h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 15px; border-radius: 20px;
+            font-size: 0.9rem; font-weight: 500;
+            margin-top: 10px;
+        }
+        .online { background: #E8F5E9; color: #2E7D32; border: 1px solid #C8E6C9; }
+        .offline { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr; 
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: #FFFFF0;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            transition: transform 0.3s;
+            margin-bottom: 25px; 
+        }
+        .card:hover { transform: translateY(-5px); }
+
+        .card h2 {
+            font-size: 1.3rem; margin-bottom: 20px;
+            color: #444; display: flex; align-items: center; gap: 10px;
+        }
+
+        .keyword-box { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 10px; 
+            justify-content: center; 
+        }
+        .keyword-tag {
+            background: #FFF9E6;
+            padding: 8px 15px; border-radius: 15px;
+            font-size: 0.95rem; color: #555;
+            border: 1px solid #FFE082;
+            transition: 0.2s;
+        }
+        .keyword-tag:hover {
+            background: #FFECB3;
+            transform: translateY(-2px);
+        }
+        .top-rank {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white; border: none; font-weight: 500;
+            font-size: 1.1rem; 
+            padding: 10px 20px;
+        }
+
+        label { font-weight: 500; display: block; margin: 15px 0 5px; color: #555; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #FFE082;
+            border-radius: 12px;
+            background: #FFFDE7;
+            font-family: 'Kanit'; font-size: 1rem;
+            outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #FFA500;
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.2);
+            background: white;
+        }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333; font-weight: 600;
+            border: none; border-radius: 25px;
+            cursor: pointer; font-size: 1rem;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
+            background: linear-gradient(135deg, #FFA500, #FFD700);
+        }
+
+        .alert {
+            padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center;
+        }
+        .alert-success { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+        .alert-error { background: #FFEBEE; color: #C62828; border: 1px solid #EF9A9A; }
+
+    </style>
+</head>
+<body>
+
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="admin-avatar">🛠️</div>
+            <h2 style="font-weight: 600;">Admin Panel</h2>
+            <p style="font-size: 0.9rem; opacity: 0.9;">ผู้ดูแลระบบ</p>
+        </div>
+        <div class="sidebar-menu">
+            <a href="/" class="menu-item">🏠 กลับหน้าหลัก</a>
+            <form method="POST" style="margin:0;">
+                <input type="hidden" name="action" value="logout">
+                <button type="submit" class="menu-item">🚪 ออกจากระบบ</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="header-card">
+            <h1><span class="gradient-text">EaseSpace Admin Center</span></h1>
+            <p style="color: #666;">ดูภาพรวมระบบและส่งข่าวสารถึงผู้ใช้งาน</p>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <div class="status-badge {{ 'online' if status == 'Online' else 'offline' }}">
+                    <span style="font-size: 1.2em;">●</span> สถานะระบบ: {{ status }}
+                </div>
+                
+                <a href="/admin/export_csv" target="_blank" style="text-decoration: none;">
+                    <div class="status-badge" style="background: #E3F2FD; color: #1565C0; border: 1px solid #BBDEFB; cursor: pointer;">
+                        📥 ดาวน์โหลดสถิติ (CSV)
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        {% if success %}
+            <div class="alert alert-success">✅ ส่งประกาศสำเร็จ! ถึงผู้ใช้งาน {{ count }} คน</div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+
+        <div class="dashboard-grid">
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 5px solid #4CAF50; margin-bottom: 0; padding: 20px;">
+                    <h2 style="font-size: 1.1rem; color: #666; margin-bottom: 10px;">👥 สมาชิกทั้งหมด</h2>
+                    <div style="font-size: 3rem; font-weight: 700; color: #4CAF50; line-height: 1;">
+                        {{ user_count }}
+                    </div>
+                    <div style="font-size: 0.9rem; color: #999;">คน</div>
+                </div>
+
+                <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; align-items: center;">
+                    <h2 style="font-size: 1rem; margin-bottom: 15px;">⚡ สถานะการใช้งาน (30 วัน)</h2>
+                    <div style="height: 180px; width: 100%; position: relative;">
+                        <canvas id="activeUserChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card" style="margin-bottom: 0;">
+                <h2>📈 แนวโน้มอารมณ์ (7 วันล่าสุด)</h2>
+                <div style="height: 250px;">
+                    <canvas id="moodChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!--
+        <div class="card">
+            <h2 style="justify-content: center;">💬 คำที่คนกังวลใจช่วงนี้ (Top 10)</h2>
+            <div class="keyword-box">
+                {% for word, count in keywords[:10] %}
+                    <span class="keyword-tag {{ 'top-rank' if loop.index <= 3 }}">
+                        {{ word }} <span style="font-size:0.8em; opacity:0.7;">({{ count }})</span>
+                    </span>
+                {% else %}
+                    <p style="color:#999; text-align:center;">ยังไม่มีข้อมูลเพียงพอ</p>
+                {% endfor %}
+            </div>
+        </div>
+    -->
+
+        <div class="card" style="border-top: 5px solid #FFD700;">
+            <h2>📢 ส่งประกาศ / ให้กำลังใจ (Broadcast)</h2>
+            <form method="POST">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                    <div>
+                        <label>📌 ประเภทข้อความ</label>
+                        <select name="type">
+                            <option value="news">📰 ข่าวสารทั่วไป / ระบบ</option>
+                            <option value="support">❤️ ข้อความให้กำลังใจ</option>
+                            <option value="alert">⚠️ แจ้งเตือนด่วน</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>หัวข้อประกาศ</label>
+                        <input type="text" name="title" required placeholder="เช่น สวัสดีวันจันทร์, ระบบปิดปรับปรุง...">
+                    </div>
+                </div>
+
+                <label>เนื้อหาข้อความ</label>
+                <textarea name="message" rows="3" required placeholder="พิมพ์ข้อความที่ต้องการส่งถึงทุกคน..."></textarea>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <button type="submit" class="btn-submit" style="width: auto; padding-left: 40px; padding-right: 40px; margin-top: 0;">
+                        🚀 ส่งข้อความ
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        
+
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        }
+
+        Chart.defaults.font.family = "'Kanit', sans-serif";
+        Chart.defaults.color = '#666';
+
+        const ctx = document.getElementById('moodChart').getContext('2d');
+        
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(255, 165, 0, 0.4)'); 
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0.0)'); 
+
+        const moodChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ mood_labels | safe }},
+                datasets: [{
+                    label: 'คะแนนอารมณ์',
+                    data: {{ mood_values | safe }},
+                    borderColor: '#FFA500',      
+                    backgroundColor: gradient,   
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#FFA500',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        max: 3.5,
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            callback: function(value) {
+                                if(value === 1) return '🌧 ฝนพรำ';
+                                if(value === 2) return '🌤 เมฆขาว';
+                                if(value === 3) return '🌞 ฟ้าใส';
+                                return '';
+                            },
+                            font: { size: 12 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const ctxActive = document.getElementById('activeUserChart').getContext('2d');
+        const activeUserChart = new Chart(ctxActive, {
+            type: 'doughnut',
+            data: {
+                labels: ['Active (ใช้งานปกติ)', 'Inactive (ไม่เคลื่อนไหว)'],
+                datasets: [{
+                    data: [{{ active_count }}, {{ inactive_count }}], 
+                    backgroundColor: [
+                        '#4CAF50', 
+                        '#E0E0E0'  
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 11 }, boxWidth: 10 }
+                    }
+                },
+                cutout: '70%' 
+            }
+        });
+    </script>
+
+</body>
+</html>

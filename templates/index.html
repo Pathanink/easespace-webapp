@@ -1,0 +1,2452 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EASESPACE - เขียนบันทึกประจำวัน</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#4CAF50">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/icon-192.png') }}">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+    * {
+        box-sizing: border-box;
+    }
+body {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+position: relative;
+min-height: 100dvh;
+margin: 0;
+padding: 40px 20px;
+font-family: 'Kanit', sans-serif;
+color: #333333;
+background-color: #FFF9E6;
+}
+.header-logo {
+position: absolute;
+top: 25px;
+right: 20px;
+width: 120px;
+height: auto;
+}
+.header-logo:hover { transform: scale(1.1); }
+.container {
+max-width: 600px;
+width: 100%;
+margin-top: 20px;
+padding: 60px;
+border-radius: 20px;
+background-color: #FFFFF0;
+box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+}
+.title {
+margin-bottom: 30px;
+font-size: 28px;
+font-weight: 600;
+color: #333333;
+text-align: center;
+}
+.sparkle {
+font-size: 20px;
+opacity: 0.8;
+}
+label {
+display: block;
+margin-bottom: 15px;
+font-size: 16px;
+font-weight: 400;
+color: #555555;
+}
+textarea {
+resize: none;
+width: 100%;
+height: 150px;
+padding: 20px;
+border: 1px solid #FFD700;
+border-radius: 15px;
+box-sizing: border-box;
+font-size: 16px;
+font-family: 'Kanit', sans-serif;
+background-color: #FFFDE7;
+transition: border-color 0.3s ease;
+}
+textarea:focus {
+border-color: #FFA500;
+outline: none;
+}
+button {
+display: block;
+cursor: pointer;
+margin: 20px auto 0;
+padding: 12px 30px;
+border: none;
+border-radius: 30px;
+font-size: 18px;
+color: white;
+background-color: #FFA500;
+transition: background-color 0.3s ease, transform 0.2s ease;
+}
+button:hover {
+background-color: #FF8C00;
+transform: translateY(-2px);
+}
+.logout-btn {
+display: none;
+}
+.logout-btn:hover {
+background-color: #FFB300;
+}
+.survey-btn {
+display: block;
+width: max-content;
+margin: 0 auto;
+padding: 12px 25px;
+border-radius: 25px;
+text-decoration: none;
+font-size: 16px;
+font-weight: 600;
+color: white;
+background-color: #FFA500;
+transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.survey-btn:hover {
+background-color: #FF8C00;
+transform: translateY(-2px);
+}
+.fixed-survey-btn {
+position: fixed;
+right: 20px;
+bottom: 20px;
+z-index: 1000;
+padding: 12px 18px;
+border-radius: 30px;
+text-decoration: none;
+font-size: 16px;
+font-weight: bold;
+color: white;
+background-color: #FFA500;
+box-shadow: 0 4px 8px rgba(255, 165, 0, 0.2);
+transition: background 0.3s ease;
+}
+.fixed-survey-btn:hover {
+background-color: #FF8C00;
+}
+.mood-summary-btn {
+position: fixed;
+right: 20px;
+bottom: 80px;
+z-index: 1000;
+padding: 12px 18px;
+border-radius: 30px;
+text-decoration: none;
+font-size: 16px;
+font-weight: bold;
+color: white;
+background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+box-shadow: 0 4px 8px rgba(255, 165, 0, 0.2);
+transition: all 0.3s ease;
+}
+.mood-summary-btn:hover {
+background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+transform: translateY(-2px);
+}
+.profile-toggle {
+position: fixed;
+top: 20px;
+left: 20px;
+z-index: 1000;
+cursor: pointer;
+padding: 12px 15px;
+border: none;
+border-radius: 50%;
+font-size: 16px;
+color: white;
+background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+box-shadow: 0 4px 8px rgba(255, 165, 0, 0.2);
+transition: all 0.3s ease;
+}
+.profile-toggle:hover {
+box-shadow: 0 6px 12px rgba(255, 165, 0, 0.3);
+transform: scale(1.1);
+}
+.sidebar {
+position: fixed;
+top: 0;
+left: -300px;
+z-index: 1001;
+width: 300px;
+height: 100vh;
+background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+transition: left 0.3s ease;
+}
+.sidebar.open {
+left: 0;
+}
+.sidebar-header {
+padding: 30px 20px;
+border-bottom: 1px solid rgba(255,255,255,0.2);
+color: white;
+}
+.profile-avatar {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 80px;
+height: 80px;
+margin-bottom: 15px;
+border-radius: 50%;
+font-size: 32px;
+background-color: #FFF9E6;
+}
+.profile-name {
+margin-bottom: 5px;
+font-size: 18px;
+font-weight: 600;
+}
+.profile-email {
+font-size: 14px;
+opacity: 0.9;
+}
+.sidebar-menu {
+    padding: 20px 0;
+    display: flex;           
+    flex-direction: column;  
+    height: calc(100dvh - 200px); 
+    overflow-y: auto;
+}
+.menu-item {
+display: block;
+cursor: pointer;
+width: 100%;
+padding: 15px 20px;
+border: none;
+border-radius: 8px;
+box-sizing: border-box;
+font-size: 16px;
+text-align: left;
+text-decoration: none;
+color: white;
+background: none;
+transition: background-color 0.3s ease;
+}
+.menu-item:hover {
+background-color: rgba(255,255,255,0.1);
+}
+.overlay {
+position: fixed;
+top: 0;
+left: 0;
+z-index: 1000;
+visibility: hidden;
+width: 100vw;
+height: 100vh;
+background-color: rgba(0,0,0,0.5);
+opacity: 0;
+transition: all 0.3s ease;
+}
+.overlay.show {
+visibility: visible;
+opacity: 1;
+}
+.info {
+display: flex;
+justify-content: space-between;
+margin: 15px 0;
+font-size: 14px;
+color: #777777;
+}
+.result {
+display: grid;
+gap: 20px;
+margin-top: 40px;
+padding: 30px;
+border-radius: 20px;
+background-color: #FFFFF0;
+box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+animation: fadeIn 0.5s ease-in-out;
+}
+.result-header {
+display: flex;
+align-items: center;
+flex-wrap: wrap;
+gap: 8px;
+margin-bottom: 10px;
+padding-bottom: 10px;
+border-bottom: 1px solid #FFD700;
+font-size: 18px;
+font-weight: 600;
+}
+.result-header strong {
+font-size: 20px;
+color: #FFA500;
+}
+.result-header .analysis-method {
+font-size: 13px;
+color: #666;
+font-weight: 400;
+justify-content: center;
+}
+.result-section {
+display: flex;
+flex-direction: column;
+gap: 10px;
+transition: transform 0.2s ease;
+}
+.result-section:hover {
+transform: translateX(5px);
+}
+.result-section h4 {
+display: flex;
+align-items: center;
+gap: 8px;
+margin: 0;
+font-size: 18px;
+font-weight: 400;
+color: #555555;
+}
+.result-section p {
+margin: 0;
+font-size: 16px;
+line-height: 1.6;
+color: #333333;
+}
+.existing-entry {
+margin-bottom: 20px;
+padding: 25px;
+border-radius: 15px;
+background: linear-gradient(135deg, #FFF9E6 0%, #FFE082 100%);
+box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+}
+.entry-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 15px;
+font-size: 18px;
+font-weight: 600;
+color: #333333;
+}
+.mood-badge {
+padding: 5px 12px;
+border-radius: 15px;
+font-size: 12px;
+font-weight: bold;
+color: white;
+}
+.mood-badge.mood-🌞ฟ้าใส {
+background-color: #FFD700;
+}
+.mood-badge.mood-🌤เมฆขาว {
+background-color: #E0E0E0;
+color: #555555;
+}
+.mood-badge.mood-🌧ฝนพรำ {
+background-color: #4682B4;
+}
+.mood-text {
+font-weight: 700;
+margin-right: 5px;
+}
+.mood-text.mood-🌞ฟ้าใส {
+color: #FFD700;
+}
+.mood-text.mood-🌤เมฆขาว {
+color: #A9A9A9;
+}
+.mood-text.mood-🌧ฝนพรำ {
+color: #4682B4;
+}
+.result-header strong.mood-text {
+background-color: transparent !important;
+padding: 0;
+}
+.result-header .mood-text.mood-🌞ฟ้าใส {
+color: #FFD700;
+}
+.result-header .mood-text.mood-🌤เมฆขาว {
+color: #A9A9A9;
+}
+.result-header .mood-text.mood-🌧ฝนพรำ {
+color: #4682B4;
+}
+.entry-content textarea {
+resize: none;
+width: 100%;
+height: 100px;
+padding: 15px;
+border: 1px solid #FFD700;
+border-radius: 10px;
+font-size: 16px;
+font-family: 'Kanit', sans-serif;
+color: #555555;
+background-color: rgba(255, 253, 231, 0.8);
+}
+.entry-info {
+display: flex;
+justify-content: space-between;
+margin: 15px 0;
+font-size: 14px;
+color: #666666;
+}
+.next-entry-info {
+margin-top: 15px;
+padding: 15px;
+border-radius: 10px;
+font-size: 14px;
+text-align: center;
+color: #856404;
+background: rgba(255, 215, 0, 0.1);
+}
+.new-badge {
+margin-left: 8px;
+padding: 3px 10px;
+border-radius: 10px;
+font-size: 12px;
+background: linear-gradient(45deg, #FFD700, #FFA500);
+color: white;
+font-weight: 600;
+}
+.countdown {
+margin-top: 15px;
+padding: 15px;
+border-radius: 10px;
+text-align: center;
+color: #333333;
+background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+}
+.delete-entry-btn {
+display: block;
+cursor: pointer;
+width: fit-content;
+margin: 20px auto 0;
+padding: 12px 30px;
+border: none;
+border-radius: 30px;
+font-size: 15px;
+font-weight: 600;
+color: white;
+background: linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%);
+transition: all 0.3s ease;
+}
+.delete-entry-btn:hover {
+background: linear-gradient(135deg, #FF4757 0%, #FF3838 100%);
+box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+transform: translateY(-2px);
+}
+.entry-actions {
+display: flex;
+flex-direction: column;
+gap: 15px;
+margin-top: 20px;
+padding-top: 20px;
+border-top: 1px solid rgba(255, 215, 0, 0.3);
+}
+.delete-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+z-index: 2001;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.6);
+animation: fadeIn 0.3s ease-in-out;
+}
+.delete-modal-content {
+width: 85%;
+max-width: 450px;
+margin: 15% auto;
+padding: 30px;
+border-radius: 20px;
+text-align: center;
+background: linear-gradient(135deg, #FFFFF0 0%, #FFF9E6 100%);
+box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
+}
+.delete-modal-header {
+margin-bottom: 15px;
+font-size: 24px;
+font-weight: 600;
+color: #FF4757;
+}
+.delete-modal-body {
+margin-bottom: 25px;
+font-size: 16px;
+line-height: 1.6;
+color: #333333;
+}
+.delete-modal-buttons {
+display: flex;
+justify-content: center;
+gap: 15px;
+}
+.confirm-delete-btn {
+cursor: pointer;
+padding: 12px 25px;
+border: none;
+border-radius: 25px;
+font-size: 16px;
+font-weight: 600;
+color: white;
+background: linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%);
+transition: all 0.3s ease;
+}
+.confirm-delete-btn:hover {
+background: linear-gradient(135deg, #FF4757 0%, #FF3838 100%);
+transform: translateY(-2px);
+}
+.cancel-delete-btn {
+cursor: pointer;
+padding: 12px 25px;
+border: none;
+border-radius: 25px;
+font-size: 16px;
+font-weight: 600;
+color: white;
+background: #999;
+transition: all 0.3s ease;
+}
+.cancel-delete-btn:hover {
+background: #777;
+}
+.modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+z-index: 10000;
+overflow: auto;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.6);
+animation: fadeIn 0.3s ease-in-out;
+}
+.modal-content {
+position: relative;
+width: 85%;
+max-width: 700px;
+margin: 5% auto;
+padding: 30px;
+border-radius: 20px;
+background: linear-gradient(135deg, #FFFFF0 0%, #FFF9E6 100%);
+box-shadow: 0 10px 30px rgba(255, 165, 0, 0.4);
+}
+.modal-header {
+margin-bottom: 20px;
+padding-bottom: 15px;
+border-bottom: 2px solid #FFD700;
+font-size: 24px;
+font-weight: 600;
+text-align: center;
+color: #FFA500;
+}
+.modal-body {
+font-size: 14px;
+line-height: 1.8;
+color: #333333;
+}
+.modal-content h3 {
+margin-bottom: 10px;
+font-size: 16px;
+font-weight: 600;
+}
+.modal-content ul {
+font-size: 14px;
+}
+.modal-content p {
+margin: 8px 0;
+}
+.modal-button {
+cursor: pointer;
+padding: 12px 30px;
+border: none;
+border-radius: 30px;
+font-size: 16px;
+font-weight: 600;
+font-family: 'Kanit', sans-serif;
+color: white;
+background-color: #FFA500;
+transition: all 0.3s ease;
+}
+.modal-button:hover {
+background-color: #FF8C00;
+box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+transform: translateY(-2px);
+}
+.modal-content::-webkit-scrollbar {
+width: 8px;
+}
+.modal-content::-webkit-scrollbar-track {
+border-radius: 10px;
+background: #FFF9E6;
+}
+.modal-content::-webkit-scrollbar-thumb {
+border-radius: 10px;
+background: #FFD700;
+}
+.modal-content::-webkit-scrollbar-thumb:hover {
+background: #FFA500;
+}
+.achievement-popup {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+z-index: 2000;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+animation: fadeIn 0.3s ease-in-out;
+}
+.achievement-content {
+position: absolute;
+top: 50%;
+left: 50%;
+width: 90%;
+max-width: 400px;
+padding: 40px;
+border-radius: 20px;
+text-align: center;
+color: white;
+background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+transform: translate(-50%, -50%);
+animation: achievementPop 0.5s ease-out;
+}
+.achievement-icon {
+display: block;
+margin-bottom: 20px;
+font-size: 80px;
+}
+.achievement-title {
+margin-bottom: 15px;
+font-size: 24px;
+font-weight: 600;
+text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+.achievement-message {
+margin-bottom: 25px;
+font-size: 16px;
+line-height: 1.5;
+text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+.achievement-close {
+cursor: pointer;
+padding: 10px 25px;
+border: 2px solid white;
+border-radius: 25px;
+font-size: 16px;
+font-weight: 600;
+color: white;
+background-color: rgba(255,255,255,0.2);
+transition: all 0.3s ease;
+}
+.achievement-close:hover {
+color: #FFA500;
+background-color: white;
+}
+.error {
+font-size: 16px;
+text-align: center;
+color: #FF4500;
+}
+.error-header {
+text-align: center;
+color: #FF8C00;
+}
+.disclaimer {
+width: 100%;
+max-width: 600px;
+margin-top: 20px;
+padding: 10px;
+border-top: 1px solid #FFD700;
+font-size: 12px;
+line-height: 1.4;
+text-align: center;
+color: #777777;
+}
+@keyframes fadeIn {
+from {
+opacity: 0;
+transform: translateY(10px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+@keyframes achievementPop {
+0% {
+transform: translate(-50%, -50%) scale(0.5);
+opacity: 0;
+}
+70% {
+transform: translate(-50%, -50%) scale(1.1);
+opacity: 1;
+}
+100% {
+transform: translate(-50%, -50%) scale(1);
+opacity: 1;
+}
+}
+
+.model-selection {
+background: linear-gradient(135deg, #FFF9E6 0%, #FFE082 100%);
+padding: 20px;
+border-radius: 15px;
+box-shadow: 0 2px 10px rgba(255, 215, 0, 0.1);
+margin-bottom: 25px;
+}
+.model-options {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 15px;
+}
+.model-option {
+transition: all 0.3s ease;
+position: relative;
+display: flex;
+align-items: flex-start;
+padding: 15px;
+border: 2px solid #E0E0E0;
+border-radius: 12px;
+cursor: pointer;
+background: #F9F9F9;
+}
+.model-option:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 15px rgba(255, 165, 0, 0.2);
+}
+.model-option input[type="radio"] {
+margin-right: 10px;
+margin-top: 3px;
+transform: scale(1.1);
+accent-color: #FFA500;
+flex-shrink: 0;
+}
+.model-option div:first-of-type {
+flex: 1;
+}
+.model-option div:first-of-type > div:first-child {
+font-weight: 600;
+color: #666;
+margin-bottom: 5px;
+font-size: 15px;
+}
+.model-option div:first-of-type > div:last-child {
+font-size: 13px;
+color: #666;
+line-height: 1.4;
+}
+.model-option:has(input[type="radio"]:checked) {
+border-color: #FFA500 !important;
+background: #FFFDE7 !important;
+box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.3);
+}
+.model-option:has(input[type="radio"]:checked) div:first-of-type > div:first-child {
+color: #FFA500 !important;
+}
+.journal-input-group {
+position: relative;
+margin-bottom: 5px;
+}
+.mic-btn {
+position: absolute;
+top: 5px;
+right: 5px;
+z-index: 10;
+width: 40px;
+height: 40px;
+padding: 0px;
+display: flex;
+align-items: center;
+justify-content: center;
+border: none;
+border-radius: 50%;
+cursor: pointer;
+background-color: #FFD700;
+color: #333333;
+font-size: 20px;
+line-height: 1;
+transition: all 0.2s ease;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.mic-btn:hover {
+background-color: #FFA500;
+transform: scale(1.1);
+}
+.mic-btn.recording {
+background-color: #FF4757;
+transform: scale(1.1);
+animation: pulse 1s infinite;
+}
+@keyframes pulse {
+0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); }
+70% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
+.mode-switcher {
+display: flex;
+background: #E0E0E0;
+padding: 5px;
+border-radius: 30px;
+margin-bottom: 25px;
+position: relative;
+}
+.mode-option {
+flex: 1;
+text-align: center;
+position: relative;
+z-index: 1;
+}
+.mode-option input {
+display: none;
+}
+.mode-option label {
+display: block;
+padding: 10px;
+cursor: pointer;
+border-radius: 25px;
+font-weight: 600;
+color: #666;
+transition: all 0.3s ease;
+margin-bottom: 0;
+}
+.mode-option input:checked + label {
+background-color: white;
+color: #FFA500;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.mood-radio-group {
+display: flex;
+gap: 10px;
+margin-bottom: 20px;
+}
+.mood-option-item { flex: 1; position: relative; cursor: pointer; }
+.mood-option-item input { display: none; }
+.mood-card {
+display: flex; flex-direction: column; align-items: center;
+padding: 15px 10px; border: 2px solid #E0E0E0; border-radius: 15px;
+background-color: white; transition: all 0.2s;
+}
+.mood-emoji { font-size: 28px; }
+.mood-name { font-size: 14px; margin-top: 5px; color: #555; }
+.mood-option-item input:checked + .mood-card {
+border-color: #FFA500; background-color: #FFFDE7;
+transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255,165,0,0.2);
+}
+.notification-wrapper {
+position: fixed;
+bottom: 30px;
+right: 30px;
+top: auto;
+left: auto;
+z-index: 1002;
+}
+.bell-btn {
+width: 60px;
+height: 60px;
+border-radius: 50%;
+background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+border: 3px solid white;
+box-shadow: 0 4px 15px rgba(255, 165, 0, 0.4);
+font-size: 28px;
+color: white;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+margin: 0;
+padding: 0;
+}
+.bell-btn:hover {
+transform: scale(1.1) rotate(15deg);
+box-shadow: 0 6px 20px rgba(255, 165, 0, 0.6);
+}
+.noti-badge {
+position: absolute;
+top: 0;
+right: 0;
+background: #FF4757;
+color: white;
+font-size: 12px;
+font-weight: bold;
+padding: 0;
+border-radius: 50%;
+border: 2px solid white;
+width: 22px;
+height: 22px;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.inbox-dropdown {
+position: absolute;
+bottom: 80px;
+top: auto;
+right: 0;
+left: auto;
+width: 320px;
+background: white;
+border-radius: 20px;
+box-shadow: 0 5px 30px rgba(0,0,0,0.15);
+display: none;
+flex-direction: column;
+overflow: hidden;
+border: 1px solid #EEE;
+transform-origin: bottom right;
+animation: inboxPopUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes inboxPopUp {
+from {
+opacity: 0;
+transform: scale(0.8) translateY(20px);
+}
+to {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+}
+.inbox-header {
+padding: 15px;
+background: #FFF9E6;
+border-bottom: 1px solid #FFE082;
+font-weight: 600;
+color: #333;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.inbox-list {
+max-height: 350px;
+overflow-y: auto;
+}
+.inbox-item {
+padding: 15px;
+border-bottom: 1px solid #EEE;
+display: flex;
+gap: 12px;
+transition: background 0.2s;
+position: relative;
+background: white;
+}
+.inbox-item:hover {
+background: #FAFAFA;
+}
+.inbox-icon { font-size: 22px; }
+.inbox-content { flex: 1; }
+.inbox-title { font-size: 14px; font-weight: 600; display: block; margin-bottom: 4px; color: #333; }
+.inbox-msg { font-size: 13px; color: #666; line-height: 1.4; margin: 0; }
+.inbox-time { font-size: 11px; color: #AAA; margin-top: 6px; display: block; }
+.inbox-close-item {
+color: #CCC;
+background: none;
+border: none;
+cursor: pointer;
+font-size: 18px;
+padding: 0 5px;
+height: fit-content;
+}
+.inbox-close-item:hover { color: #FF4757; }
+.empty-inbox {
+padding: 40px 20px;
+text-align: center;
+color: #999;
+font-size: 14px;
+}
+@keyframes slideIn {
+from { opacity: 0; transform: translateY(-10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.mood-desc-box {
+    margin-top: 15px;
+    margin-bottom: 30px;
+    border-bottom: 1px dashed #EEE; 
+    padding-bottom: 20px;           
+    padding: 15px;
+    background-color: #FFF;
+    border-radius: 12px;
+    border-left: 5px solid #FFA500; 
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-5px);
+    display: none; 
+}
+
+.mood-desc-box.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.mood-desc-box strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+@keyframes slideUp {
+        from { transform: translate(-50%, 100%); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+#ios-install-popup {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;                    
+    transform: translateX(-50%); 
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid #FFE082;
+    width: 90%;                   
+    max-width: 400px;
+    box-sizing: border-box;      
+}
+
+    #android-manual-popup {
+        display: none;
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 9999;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 15px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        border: 2px solid #FFA500;
+        width: 260px;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes slideUpIOS {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .modal-button {
+        padding: 8px 15px !important;  
+        font-size: 13px !important;    
+        border-radius: 20px;
+        width: 100%;                   
+        margin-bottom: 5px;            
+    }
+
+    .container {
+        margin-top: 120px !important;
+        padding: 25px 15px;
+        width: 100%;
+        border-radius: 16px;
+        margin-left: 10px;
+        margin-right: 10px;
+        max-width: 90%;
+    }
+
+    .profile-toggle {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        z-index: 900 !important;
+    } 
+    
+    .sidebar-menu {
+        height: calc(100dvh - 180px) !important; 
+        padding-bottom: 40px !important; 
+    }
+
+    #sidebar-install-btn {
+        margin-bottom: 80px !important; 
+    }
+
+    .header-logo {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100px;
+    width: 100px;
+    margin: 0;
+    z-index: 2001;
+    pointer-events: none;
+}
+    .sidebar.open ~ .header-logo {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .notification-wrapper {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        left: auto;
+        width: 40px;
+        height: 40px;
+        margin: 0;
+        padding: 0;
+        z-index: 2002;
+        overflow: visible;
+        transition: opacity 0.2s ease;
+    }
+    
+    .sidebar.open ~ .notification-wrapper {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .bell-btn {
+        width: 100%;
+        height: 100%;
+        font-size: 18px;
+        border-width: 1.5px;
+        margin: 0;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 2003;
+    }
+
+    .noti-badge {
+        top: -3px;
+        right: -3px;
+        width: 16px;
+        height: 16px;
+        font-size: 9px;
+        z-index: 2004;
+    }
+    
+    .inbox-dropdown {
+        position: fixed;
+        top: 70px;
+        right: 16px;
+        left: auto;
+        width: 280px;
+        max-height: 60vh;
+        background-color: #FFFFFF;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        border-radius: 16px;
+        border: 1px solid #EEE;
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+    }
+
+    .sidebar { width: 80%; max-width: 300px; left: -100%; }
+
+    .sidebar-header {
+        padding-top: 90px;
+        padding-bottom: 20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        color: white;
+    }
+
+    .journal-input-group { position: relative; }
+    textarea { padding-right: 50px; }
+
+    .mic-btn {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        top: auto;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        background-color: rgba(255, 215, 0, 0.2);
+        color: #FFA500;
+        box-shadow: none;
+        border: 1px solid rgba(255, 215, 0, 0.5);
+    }
+    .mic-btn:hover, .mic-btn.recording {
+        background-color: #FFD700;
+        color: #333;
+        opacity: 1;
+    }
+    
+    .survey-btn {
+    padding: 4px 10px;     
+    font-size: 12px;       
+    border-radius: 14px;  
+    }
+    
+    .title { font-size: 22px; margin-bottom: 20px; }
+    button { font-size: 16px; padding: 10px 24px; }
+    
+    .fixed-survey-btn {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        bottom: 20px;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 14px;
+        box-sizing: border-box;
+    }
+
+    .mood-summary-btn {
+        right: 20px; left: 20px; transform: none; width: auto;
+        text-align: center; display: block; max-width: none;
+    }
+    .fixed-survey-btn { bottom: 20px; }
+    .mood-summary-btn { bottom: 75px; }
+
+    .result {
+        background-color: #FFFFFF;
+        padding: 30px 20px;
+        margin-top: 20px;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(255, 165, 0, 0.15);
+        text-align: center;
+        border: 2px solid #FFF9E6;
+        animation: fadeIn 0.5s ease-out;
+    }
+    .result-header {
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; border-bottom: none; margin-bottom: 20px;
+        padding-bottom: 0; gap: 5px; font-size: 14px; color: #888;
+    }
+    .result-header strong {
+        font-size: 42px; margin: 10px 0; line-height: 1.2;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.05); order: 2;
+    }
+    .result-header span:not(.new-badge):not(.analysis-method) {
+        font-size: 14px; color: #AAA; background: #F5F5F5;
+        padding: 4px 12px; border-radius: 20px; margin-top: 5px; order: 3;
+    }
+    .new-badge {
+        order: 1; font-size: 11px; padding: 4px 10px; margin: 0;
+        align-self: center; box-shadow: 0 2px 5px rgba(255, 215, 0, 0.3);
+    }
+    .result-header .analysis-method {
+        width: 100%; margin-top: 15px; font-size: 12px;
+        color: #999; order: 4; display: flex;
+        justify-content: center; align-items: center; gap: 5px;
+    }
+    .result-section {
+        background: linear-gradient(135deg, #FFF9E6 0%, #FFF0D4 100%);
+        padding: 20px; border-radius: 16px; text-align: left;
+        margin-top: 10px; border: 1px solid #FFE082;
+    }
+    .result-section h4 {
+        display: flex; justify-content: center; font-size: 16px;
+        font-weight: 600; color: #FF8C00; margin-bottom: 12px;
+        padding-bottom: 10px; border-bottom: 1px dashed #FFD54F;
+    }
+    .result-section p {
+        font-size: 15px; line-height: 1.7; color: #555; text-align: center;
+    }
+    .result-section .survey-btn {
+        margin-top: 15px; width: 100%; background: white;
+        color: #FF8C00; border: 2px solid #FF8C00; box-shadow: none;
+    }
+
+    .survey-btn {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 14px;
+    white-space: normal;
+    text-align: center;
+    }
+    
+    .delete-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 10000;          
+    display: none;
+
+    pointer-events: auto;   
+    }
+
+
+    .modal-content { width: 95%; max-height: 85vh; padding: 20px; }
+    .modal-header { font-size: 20px; }
+    .modal-body { font-size: 13px; }
+    .delete-modal-content { margin: 70% auto; padding: 25px 20px;  }
+    .delete-modal-buttons { flex-direction: column; gap: 0.1px;    }
+    .confirm-delete-btn, .cancel-delete-btn { width: 100%; }
+    .model-options { grid-template-columns: 1fr; }
+    .achievement-content { padding: 30px 20px; }
+    .achievement-icon { font-size: 60px; }
+    .achievement-title { font-size: 20px; }
+    .achievement-message { font-size: 14px; }
+    .disclaimer { font-size: 11px; }
+
+@keyframes slideUpIOS {
+    from { 
+        transform: translate(-50%, 100%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translate(-50%, 0); 
+        opacity: 1; 
+    }
+}
+
+#ios-install-popup {
+        left: 20px !important; 
+        right: 20px !important; 
+        margin: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        
+        transform: none !important; 
+        
+        animation: slideUpMobile 0.5s ease !important; 
+    }
+
+}
+
+@keyframes slideUpMobile {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+</style>
+
+
+</head>
+<body>
+
+    <div id="deleteModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-header">⚠️ ยืนยันการลบบันทึก</div>
+        <div class="delete-modal-body">
+            คุณแน่ใจหรือไม่ที่จะลบบันทึกวันนี้?<br>
+            <strong style="color: #FF4757;">การกระทำนี้ไม่สามารถย้อนกลับได้!</strong>
+        </div>
+        <div class="delete-modal-buttons">
+            <button class="confirm-delete-btn" onclick="confirmDeleteEntry()">
+                🗑️ ลบบันทึก
+            </button>
+            <button class="cancel-delete-btn" onclick="closeDeleteModal()">
+                ❌ ยกเลิก
+            </button>
+        </div>
+    </div>
+</div>
+
+    <div id="achievementPopup" class="achievement-popup">
+    <div class="achievement-content">
+        <div id="achievementIcon" class="achievement-icon">🏆</div>
+        <div id="achievementTitle" class="achievement-title">ความสำเร็จใหม่!</div>
+        <div id="achievementMessage" class="achievement-message">คุณได้รับความสำเร็จใหม่แล้ว!</div>
+        <button class="achievement-close" onclick="closeAchievementPopup()">กดเพื่อรับเหรียญรางวัล</button>
+    </div>
+</div>
+
+<div id="welcomeModal" class="modal">
+    <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+        <div class="modal-header">ข้อตกลงการใช้บริการ EASESPACE</div>
+        <div class="modal-body" style="text-align: left; font-size: 14px; line-height: 1.8;">
+           
+            <h3 style="color: #FFA500; margin-top: 15px;">🎓 0. เกี่ยวกับโปรเจกต์</h3>
+            <div style="background: #E6F3FF; padding: 15px; border-radius: 10px; margin: 15px 0; border: 1px solid #4CAF50;">
+                <p><strong>โปรเจกต์:</strong> EASESPACE - ระบบบันทึกและวิเคราะห์อารมณ์</p>
+                <p><strong>จัดทำโดย:</strong> นายปธานิน คูหาทอง และนางสาวสุชญา พานสมภพ</p>
+                <p><strong>สถาบัน:</strong> มหาวิทยาลัยขอนแก่น วิทยาลัยการคอมพิวเตอร์</p>
+                <p><strong>วัตถุประสงค์:</strong> เพื่อการศึกษาและพัฒนาเว็บไซต์เท่านั้น</p>
+                <p><strong>📘 หมายเหตุสำคัญ:</strong> นี่เป็นโปรเจกต์การศึกษา ไม่ใช่บริการเชิงพาณิชย์</p>
+            </div>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">📋 1. การยอมรับข้อตกลง</h3>
+            <p>การใช้งานเว็บไซต์ EASESPACE แสดงว่าคุณยอมรับและตกลงปฏิบัติตามข้อกำหนดและเงื่อนไขทั้งหมดนี้ หากคุณไม่ยอมรับ กรุณาหยุดการใช้งานทันที</p>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">⚠️ 2. ข้อจำกัดความรับผิดชอบ (Disclaimer)</h3>
+            <p><strong style="color: #FF4500;">สำคัญมาก:</strong> EASESPACE เป็นเพียงเครื่องมือบันทึกและวิเคราะห์อารมณ์เบื้องต้นสำหรับการศึกษา <strong>โดยไม่ใช่</strong></p>
+            <ul style="margin: 10px 0; padding-left: 25px;">
+                <li>❌ เครื่องมือทางการแพทย์หรือการรักษา</li>
+                <li>❌ การวินิจฉัยโรคทางจิตเวช</li>
+                <li>❌ การทดแทนการปรึกษาแพทย์ นักจิตวิทยา หรือผู้เชี่ยวชาญ</li>
+            </ul>
+            <p><strong>หากคุณมีอาการรุนแรง หรือคิดทำร้ายตัวเอง โปรดติดต่อ</strong></p>
+            <ul style="margin: 10px 0; padding-left: 25px;">
+                <li>📞 สายด่วนสุขภาพจิต: <strong>1323</strong> (24 ชม.)</li>
+                <li>🏥 โรงพยาบาลหรือสถานพยาบาลใกล้บ้าน</li>
+                <li>👨‍⚕️ จิตแพทย์ นักจิตวิทยาคลินิก</li>
+            </ul>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">🔒 3. นโยบายความเป็นส่วนตัว</h3>
+            <p>เพื่อให้สอดคล้องกับหลัก PDPA เราจะดูแลข้อมูลของคุณดังนี้</p>
+            <ul style="margin: 10px 0; padding-left: 25px;">
+                <li><strong>ข้อมูลที่เก็บ:</strong> อีเมล, ชื่อผู้ใช้, บันทึกอารมณ์, ผลการวิเคราะห์</li>
+                <li><strong>วัตถุประสงค์:</strong> เพื่อการศึกษา พัฒนาระบบ และให้บริการวิเคราะห์อารมณ์</li>
+                <li><strong>การเก็บรักษา:</strong> เข้ารหัสและจัดเก็บอย่างปลอดภัยบน Firebase</li>
+                <li><strong>การใช้ข้อมูล:</strong> ใช้เพื่อปรับปรุงระบบและวิจัยเท่านั้น ไม่มีการขาย</li>
+                <li><strong>สิทธิ์ของคุณ:</strong> คุณสามารถขอดู แก้ไข หรือลบข้อมูลได้ทุกเมื่อที่หน้า "ตั้งค่า"</li>
+            </ul>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">🤖 4. การใช้งาน AI (Gemini)</h3>
+            <ul style="margin: 10px 0; padding-left: 25px;">
+                <li>AI จะวิเคราะห์บันทึกของคุณเพื่อให้คำแนะนำเบื้องต้นเท่านั้น</li>
+                <li>ข้อมูลที่ส่งไปยัง AI จะไม่เก็บไว้ในระบบของ Google Gemini</li>
+                <li>AI อาจมีข้อผิดพลาด กรุณาใช้วิจารณญาณในการรับคำแนะนำ</li>
+                <li>การใช้ AI เป็นส่วนหนึ่งของการเรียนรู้และทดสอบระบบ</li>
+            </ul>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">📝 5. การใช้งานที่เหมาะสม</h3>
+            <p>คุณตกลงว่าจะ</p>
+            <ul style="margin: 10px 0; padding-left: 25px;">
+                <li>✅ ใช้งานเพื่อบันทึกอารมณ์ส่วนตัวและทดสอบระบบ</li>
+                <li>✅ ให้ข้อมูลป้อนกลับเพื่อพัฒนาระบบ</li>
+                <li>❌ ไม่ใช้เพื่อเผยแพร่ข้อมูลเท็จ หรือเนื้อหาที่ไม่เหมาะสม</li>
+                <li>❌ ไม่พยายามทำลายระบบหรือเข้าถึงข้อมูลผู้อื่น</li>
+            </ul>
+            
+            <h3 style="color: #FFA500; margin-top: 15px;">👶 6. อายุของผู้ใช้บริการ</h3>
+            <p>ผู้ใช้ต้องมีอายุอย่างน้อย <strong>18 ปีบริบูรณ์</strong> จึงจะสามารถใช้บริการได้ด้วยตนเอง</p>
+            <p>หากมีอายุต่ำกว่า 18 ปี ต้องได้รับความยินยอมจากผู้ปกครองก่อนเริ่มใช้งาน</p>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">🚪 7. การยกเลิกบริการ</h3>
+            <ul style="margin: 10px 0; padding-left: 25px;">
+                <li>คุณสามารถยกเลิกบัญชีได้ทุกเมื่อที่หน้า "ตั้งค่า"</li>
+                <li>ข้อมูลจะถูกลบภายใน 30 วันหลังการยกเลิก</li>
+                <li>การยกเลิกไม่มีค่าใช้จ่ายใดๆ</li>
+            </ul>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">⚖️ 8. ข้อจำกัดและความรับผิดชอบ</h3>
+            <p>โปรเจกต์นี้จัดทำขึ้นเพื่อการศึกษา ผู้จัดทำไม่รับผิดชอบต่อความเสียหายใดๆ ที่อาจเกิดขึ้นจากการใช้งาน หากมีปัญหาหรือข้อสงสัย กรุณาติดต่อผู้จัดทำโดยตรง</p>
+            
+            <h3 style="color: #FFA500; margin-top: 15px;">🧾 9. การเปลี่ยนแปลงข้อตกลง</h3>
+            <p>ผู้จัดทำอาจปรับปรุงหรือแก้ไขข้อตกลงนี้ได้เป็นครั้งคราว เพื่อความเหมาะสมทางวิชาการ โดยจะแจ้งการเปลี่ยนแปลงผ่านหน้าเว็บไซต์นี้</p>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">⚖️ 10. กฎหมายที่ใช้บังคับ</h3>
+            <p>ข้อตกลงนี้อยู่ภายใต้บังคับแห่งกฎหมายไทย และหากมีข้อพิพาทใด ๆ ให้ใช้ศาลไทยเป็นผู้พิจารณา</p>
+
+            <h3 style="color: #FFA500; margin-top: 15px;">📧 11. ติดต่อเรา</h3>
+            <p>หากมีคำถามเกี่ยวกับระบบหรือข้อตกลงนี้ ติดต่อ: <strong>pathanin.k@kkumail.com</strong></p>
+          
+            <div style="background: #FFF9E6; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid #FFD700;">
+                <strong style="color: #FF8C00;">📌 การกดปุ่ม "ยอมรับและดำเนินการต่อ" แสดงว่า</strong>
+                <ul style="margin: 10px 0; padding-left: 25px;">
+                    <li>คุณเข้าใจว่านี่เป็นโปรเจกต์การศึกษา</li>
+                    <li>คุณยินยอมให้ใช้ข้อมูลเพื่อการพัฒนาและวิจัย</li>
+                    <li>คุณยอมรับว่าระบบนี้ไม่ใช่การรักษาทางการแพทย์</li>
+                    <li>คุณใช้งานด้วยความเสี่ยงของตัวเอง</li>
+                </ul>
+            </div>
+
+            <p style="margin-top: 15px; text-align: center; color: #666;">
+                <small>ปรับปรุงล่าสุด: 7 ตุลาคม 2568 | เวอร์ชัน 1.0</small>
+            </p>
+        
+            <div style="margin-top: 20px; display: flex; align-items: flex-start; gap: 10px; padding: 15px; background: #F0F8FF; border-radius: 10px;">
+            <input type="checkbox" id="agreeCheckbox" style="margin-top: 4px; transform: scale(1.2);">
+            <label for="agreeCheckbox" style="font-size: 14px; line-height: 1.5; cursor: pointer; margin: 0;">
+                ฉันยืนยันว่าฉันได้อ่านและเข้าใจข้อตกลงการใช้บริการทั้งหมดแล้ว
+            </label>
+        </div>
+
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+            <button class="modal-button" onclick="acceptTerms()" style="background: linear-gradient(135deg, #FFD700, #FFA500);">
+                ✅ ยอมรับและดำเนินการต่อ
+            </button>
+            <button class="modal-button" onclick="declineTerms()" style="background: #999; padding: 10px 20px;">
+                ❌ ไม่ยอมรับ
+            </button>
+        </div>
+    </div>
+</div>
+    
+    <button class="profile-toggle" onclick="toggleSidebar()">👤</button>
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="profile-avatar">
+                {{ session.user.name[0].upper() if session.user.name else '👤' }}
+            </div>
+            <div class="profile-name">{{ session.user.name or 'ผู้ใช้งาน' }}</div>
+            <div class="profile-email">{{ session.user.email }}</div>
+        </div>
+        <div class="sidebar-menu">
+            <a href="/" class="menu-item">🏠 หน้าหลัก</a>
+            <a href="/mood_summary" class="menu-item">📊 แดชบอร์ดอารมณ์</a>
+            <a href="/game" class="menu-item">🎮 Bubble Bliss</a>
+            <a href="/achievements" class="menu-item">🏆 เหรียญรางวัล</a>
+            <a href="/survey" class="menu-item">✨ แบบประเมิน PHQ-9</a>
+            <a href="https://forms.gle/mMMBrPmSvQaRmzRA9"
+            class="menu-item"
+            target="_blank"
+            rel="noopener noreferrer">
+            📝 แบบประเมินความพึงพอใจ
+            </a>
+            <a href="/settings" class="menu-item">⚙️ ตั้งค่า</a>
+            <a href="/logout" class="menu-item">🚪 ออกจากระบบ</a>
+             
+            <button id="sidebar-install-btn" class="menu-item" 
+                style="display: none; 
+                    background: rgba(255, 255, 255, 0.2); 
+                    
+                    border: 1px solid rgba(255, 255, 255, 0.6);
+                    
+                    color: white; 
+                    font-weight: 500; 
+                    backdrop-filter: blur(5px);
+                    
+                    margin-top: auto;       
+                    margin-bottom: 30px;    
+                    margin-left: 20px;      
+                    margin-right: 20px;     
+                    width: calc(100% - 40px); 
+                    padding: 12px;
+                    text-align: center;
+                    border-radius: 15px; 
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                📲 ติดตั้งแอปไว้บนเครื่อง
+            </button>
+            </div>
+        </div>
+    
+    <div class="notification-wrapper">
+    <button class="bell-btn" onclick="toggleInbox()">
+        🔔
+        {% if notifications and notifications|length > 0 %}
+            <span class="noti-badge" id="notiBadge">{{ notifications|length }}</span>
+        {% endif %}
+    </button>
+
+    <div class="inbox-dropdown" id="inboxDropdown">
+        <div class="inbox-header">
+            <span>กล่องจดหมาย 📬</span>
+            {% if notifications %}
+                <span style="font-size: 12px; color: #FFA500; cursor: pointer;" onclick="toggleInbox()">ปิด</span>
+            {% endif %}
+        </div>
+        
+        <div class="inbox-list" id="inboxList">
+            {% if notifications %}
+                {% for noti in notifications %}
+                <div class="inbox-item" id="inbox-{{ noti.id }}">
+                    <div class="inbox-icon">
+                        {% if noti.type == 'alert' %}
+                            ⚠️
+                        {% elif noti.type == 'news' %}
+                            📰
+                        {% elif noti.type == 'support' %}
+                            ❤️
+                        {% else %}
+                            📩
+                        {% endif %}
+                    </div>
+                    <div class="inbox-content">
+                        <span class="inbox-title">{{ noti.title }}</span>
+                        <p class="inbox-msg">{{ noti.message }}</p>
+                        <small class="inbox-time">{{ noti.time_str or 'วันนี้' }}</small>
+                    </div>
+                    <button class="inbox-close-item" onclick="markRead('{{ noti.id }}', event)">×</button>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-inbox">
+                    📭 ไม่มีข้อความใหม่
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+    <img src="/static/logo.png" alt="EASESPACE" class="header-logo">
+    </a>
+    
+    <div class="container">
+    <div class="title">เขียนบันทึกประจำวัน <span class="sparkle">✏️</span></div>
+
+    {% if today_entry %}
+    <div class="existing-entry">
+        <div class="entry-header">
+            📝 บันทึกวันนี้ของคุณ
+            <span class="mood-badge mood-{{ today_entry.mood_label }}">{{ today_entry.mood_label }}</span>
+        </div>
+        <div class="entry-content">
+            <textarea readonly>{{ today_entry.journal_text }}</textarea>
+        </div>
+        <div class="entry-info">
+            <span>เขียนเมื่อ: {{ today_entry.timestamp.strftime('%H:%M น.') }}</span>
+            <span>อารมณ์: {{ today_entry.mood_label }}</span>
+        </div>
+
+        <button class="delete-entry-btn" onclick="openDeleteModal()">
+            🗑️ ลบบันทึกนี้
+        </button>
+
+        <div class="next-entry-info">
+            💡 คุณสามารถเขียนบันทึกใหม่ได้พรุ่งนี้ เวลา 00:00 น.
+        </div>
+    </div>
+{% else %}
+    <form method="POST" action="/analyze" id="journalForm">
+    
+    <div class="mode-switcher">
+        <div class="mode-option">
+            <input type="radio" name="entry_mode" id="mode_manual" value="manual" checked onchange="toggleMode()">
+            <label for="mode_manual">👆 เลือกอารมณ์เอง</label>
+        </div>
+        <div class="mode-option">
+            <input type="radio" name="entry_mode" id="mode_ai" value="ai" onchange="toggleMode()">
+            <label for="mode_ai">🤖 AI วิเคราะห์</label>
+        </div>
+    </div>
+
+    <div id="manualSection">
+        <label class="mood-selection-label">วันนี้รู้สึกแบบไหนครับ?</label>
+        <div class="mood-radio-group">
+            <label class="mood-option-item">
+                <input type="radio" name="manual_mood" value="🌞ฟ้าใส">
+                <div class="mood-card">
+                    <span class="mood-emoji">🌞</span>
+                    <span class="mood-name">ฟ้าใส</span>
+                </div>
+            </label>
+            <label class="mood-option-item">
+                <input type="radio" name="manual_mood" value="🌤เมฆขาว" checked>
+                <div class="mood-card">
+                    <span class="mood-emoji">🌥️</span>
+                    <span class="mood-name">เมฆขาว</span>
+                </div>
+            </label>
+            <label class="mood-option-item">
+                <input type="radio" name="manual_mood" value="🌧ฝนพรำ">
+                <div class="mood-card">
+                    <span class="mood-emoji">🌧️</span>
+                    <span class="mood-name">ฝนพรำ</span>
+                </div>
+            </label>
+        </div>
+
+        <div id="moodDescription" class="mood-desc-box">
+            </div>
+    </div>
+
+    <label id="journalLabel">บันทึกเรื่องราว:</label>
+    <div class="journal-input-group">
+        <button type="button" id="startSpeechBtn" class="mic-btn" onclick="startSpeechRecognition()">🎤</button>
+        <textarea name="journal" id="journal" maxlength="300" oninput="updateCharCount()" placeholder="เล่าให้ฟังหน่อย..."></textarea>
+    </div>
+    <div class="info">
+        <span id="date"></span>
+        <span id="char-count">0/300 ตัวอักษร</span>
+    </div>
+
+    <div id="aiSection" style="display: none;">
+        <div class="model-selection">
+            <label style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 12px; display: block;">
+                🤖 เลือกโมเดล AI
+            </label>
+            <div class="model-options">
+                <label class="model-option">
+                    <input type="radio" name="model_choice" value="local" checked>
+                    <div>
+                        <div>🧠 EaseSpace 1.0</div>
+                        <div>โมเดลพื้นฐาน รวดเร็ว</div>
+                    </div>
+                </label>
+                <label class="model-option">
+                    <input type="radio" name="model_choice" value="gemini">
+                    <div>
+                        <div>🤖 Gemini AI</div>
+                        <div>วิเคราะห์ละเอียดกว่า</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <button type="submit" id="submitBtn">บันทึกข้อมูล ✅</button>
+</form>
+{% endif %}
+
+    
+
+{% if result %}
+    <div class="result" id="result-box">
+        {% if result.error %}
+            <div class="result-header error-header">
+                {% if result.existing_entry %}
+                    ⏰ {{ result.error }}
+                {% else %}
+                    ❌ {{ result.error }}
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="result-header">
+                ทำนายอารมณ์: <strong class="mood-text mood-{{ result.label | replace(' ', '') }}">{{ result.label }}</strong>
+                <span style="color: #666;">({{ result.probability }}%)</span>
+                
+                {% if result.is_new_entry %}
+                    <span class="new-badge">✨ ใหม่</span>
+                {% endif %}
+                
+                {% if result.analysis_method %}
+                    <span class="analysis-method">วิเคราะห์โดย: {{ result.analysis_method }}</span>
+                {% endif %}
+            </div>
+
+            <div class="result-section" style="background: linear-gradient(135deg, #FFF9E6 0%, #FFE082 50%); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <h4 style="margin-bottom: 8px;">🌈 ความหมายของสภาพอากาศวันนี้</h4>
+                <p style="font-size: 15px; line-height: 1.6;">
+                    {% if result.label == "🌞ฟ้าใส" %}
+                        <strong>🌞 ฟ้าใส</strong> หมายถึง วันนี้คุณรู้สึกสดใส เบิกบาน พร้อมรับมือกับทุกสิ่ง เหมือนท้องฟ้าที่ไร้เมฆบัง แสงแดดอบอุ่นส่องใจ✨
+                    {% elif result.label == "🌤เมฆขาว" %}
+                        <strong>🌥️ เมฆขาว</strong> หมายถึง วันนี้คุณรู้สึกปกติดี มีเมฆลอยมาบ้าง แต่ยังมีแสงแดดส่องผ่าน อาจมีเรื่องเล็กน้อยที่ทำให้คิดมาก แต่โดยรวมแล้วยังจัดการได้ดี🌸
+                    {% elif result.label == "🌧ฝนพรำ" %}
+                        <strong>🌧️ ฝนพรำ</strong> หมายถึง วันนี้คุณอาจรู้สึกหนักใจ เหนื่อยล้า หรือต้องการเวลาสงบ เหมือนฝนที่โปรยปรายลงมา ซึ่งเป็นเรื่องปกติที่ทุกคนต้องเจอ💙
+                    {% else %}
+                        วันนี้คุณรู้สึกอย่างไร? ไม่ว่าจะเป็นสภาพอากาศแบบไหน ทุกวันมีคุณค่าในตัวเอง และคุณกำลังทำได้ดีมากแล้ว 💛
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if result.label == "🌧ฝนพรำ" %}
+            <div class="result-section" style="border-top:1px solid #FFD700; padding-top:15px; text-align:center;">
+                <p>เราเป็นห่วงคุณ 💛 ลองทำแบบทดสอบสุขภาพจิตเพิ่มเติมได้ที่นี่</p>
+                <a href="/survey" class="survey-btn">ทำแบบประเมิน PHQ-9</a>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.innerWidth <= 600) {
+                setTimeout(function() {
+                    var resultElement = document.getElementById("result-box");
+                    if (resultElement) {
+                        resultElement.scrollIntoView({ 
+                            behavior: "smooth", 
+                            block: "center" 
+                        });
+                    }
+                }, 300); 
+            }
+        });
+    </script>
+{% endif %}
+
+    <div class="disclaimer">
+        <strong>⚠️ คำเตือน:</strong> EASESPACE ไม่ใช่เครื่องมือแพทย์ หากมีอาการรุนแรงโปรดปรึกษาผู้เชี่ยวชาญ
+    </div>
+
+    <div id="ios-install-popup" style="display: none; position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 9999; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid #FFE082; animation: slideUp 0.5s ease;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+        <strong style="color: #FFA500; font-size: 16px;">📲 วิธีติดตั้งลง iPhone/iPad</strong>
+        <button onclick="document.getElementById('ios-install-popup').style.display='none'" style="background: none; border: none; font-size: 20px; color: #999; padding: 0; margin: 0; cursor: pointer;">✕</button>
+    </div>
+
+    <div style="font-size: 14px; color: #333; line-height: 1.6;">
+        1. กดปุ่ม <strong>แชร์</strong> <span style="font-size: 18px; display: inline-block; transform: translateY(2px);">📤</span> ด้านล่าง <br>
+        2. เลื่อนหาและเลือก <br>
+        <strong>"เพิ่มไปยังหน้าจอโฮม" <br>(Add to Home Screen)</strong> 
+        
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M12 12v6"></path>
+            <path d="M12 12l-4 4"></path>
+            <path d="M12 12l4 4"></path>
+        </svg>
+    </div>
+    <div style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 20px; height: 20px; background: rgba(255, 255, 255, 0.95); border-bottom: 1px solid #FFE082; border-right: 1px solid #FFE082;"></div>
+</div>
+
+</div>
+    <script>
+    function toggleMode() {
+    const isManual = document.getElementById('mode_manual').checked;
+    const manualSection = document.getElementById('manualSection');
+    const aiSection = document.getElementById('aiSection');
+    const submitBtn = document.getElementById('submitBtn');
+    const journalInput = document.getElementById('journal');
+    const journalLabel = document.getElementById('journalLabel');
+
+    if (isManual) {
+        manualSection.style.display = 'block';
+        aiSection.style.display = 'none';
+        submitBtn.textContent = 'บันทึกความรู้สึก 📝';
+        journalLabel.textContent = 'บันทึกเพิ่มเติม (ไม่บังคับ)';
+        journalInput.required = false; 
+        journalInput.placeholder = "อยากเล่าอะไรเพิ่มเติมไหม? (ถ้าไม่ก็ข้ามได้เลย)";
+    } else {
+        manualSection.style.display = 'none';
+        aiSection.style.display = 'block';
+        journalLabel.textContent = 'เล่าเรื่องราววันนี้ (เพื่อให้ AI วิเคราะห์)';
+        journalInput.required = true; 
+        journalInput.placeholder = "วันนี้เจออะไรมาบ้าง เล่าให้ฟังหน่อย...";
+        
+        const selectedModel = document.querySelector('input[name="model_choice"]:checked');
+        if (selectedModel && selectedModel.value === 'gemini') {
+            submitBtn.textContent = '🤖 วิเคราะห์ด้วย Gemini AI';
+        } else {
+            submitBtn.textContent = '🧠 วิเคราะห์ด้วย EaseSpace'; 
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', toggleMode);
+
+    function openDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function confirmDeleteEntry() {
+    const confirmBtn = document.querySelector('.confirm-delete-btn');
+    const originalText = confirmBtn.textContent;
+    confirmBtn.textContent = '⏳ กำลังลบ...';
+    confirmBtn.disabled = true;
+    
+    fetch('/delete_today_entry', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('❌ เกิดข้อผิดพลาด: ' + (data.error || 'ไม่สามารถลบบันทึกได้'));
+            confirmBtn.textContent = originalText;
+            confirmBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ\nกรุณาลองใหม่อีกครั้ง');
+        confirmBtn.textContent = originalText;
+        confirmBtn.disabled = false;
+    });
+}
+
+window.onclick = function(event) {
+    const deleteModal = document.getElementById('deleteModal');
+    if (event.target === deleteModal) {
+        closeDeleteModal();
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+    }
+});
+
+    const today = new Date();
+    const formattedDate = today.getDate().toString().padStart(2, '0') + '/' +
+                          (today.getMonth() + 1).toString().padStart(2, '0') + '/' +
+                          today.getFullYear();
+    
+    const dateElement = document.getElementById('date');
+    if (dateElement) {
+        dateElement.innerHTML = formattedDate + ' <span class="sparkle">✨</span>';
+    }
+
+    function updateCharCount() {
+        const journal = document.getElementById('journal');
+        const charCountElement = document.getElementById('char-count');
+        
+        if (journal && charCountElement) {
+            const charCount = journal.value.length;
+            const maxChars = 300;
+            charCountElement.textContent = `${charCount}/${maxChars} ตัวอักษร`;
+           
+            if (charCount > maxChars) {
+                journal.value = journal.value.slice(0, maxChars);
+                updateCharCount();
+            }
+        }
+    }
+
+    {% if today_entry %}
+    function updateCountdown() {
+        const now = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
+        const timeLeft = tomorrow.getTime() - now.getTime();
+        
+        if (timeLeft > 0) {
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            const existingEntry = document.querySelector('.existing-entry');
+            let countdownDiv = document.querySelector('.countdown');
+            
+            if (!countdownDiv) {
+                countdownDiv = document.createElement('div');
+                countdownDiv.className = 'countdown';
+                existingEntry.appendChild(countdownDiv);
+            }
+            
+            countdownDiv.innerHTML = `⏰ เขียนบันทึกใหม่ได้อีก ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            location.reload();
+        }
+    }
+    
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+    {% endif %}
+
+    const form = document.getElementById('journalForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const button = document.getElementById('analyzeBtn');
+            button.disabled = true;
+            button.textContent = 'กำลังวิเคราะห์...';
+        });
+    }
+
+        function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSidebar();
+        }
+    });
+    
+
+function openModal() {
+    if (localStorage.getItem('terms_accepted') === 'true') {
+        console.log('Terms already accepted, not showing modal');
+        return; 
+    }
+    
+    document.getElementById('welcomeModal').style.display = 'block';
+    document.body.style.overflow = 'hidden'; 
+}
+
+function closeModal() {
+    if (localStorage.getItem('terms_accepted') === 'true') {
+        document.getElementById('welcomeModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; 
+    } else {
+        alert('⚠️ กรุณายอมรับข้อตกลงการใช้งานก่อน');
+    }
+}
+
+
+function acceptTerms() {
+    const checkbox = document.getElementById('agreeCheckbox');
+    if (!checkbox.checked) {
+        alert('กรุณาเลือก "ฉันยืนยันว่าฉันได้อ่านและเข้าใจข้อตกลง..." ก่อนกดยอมรับ');
+        return;
+    }
+    
+    localStorage.setItem('terms_accepted', 'true');
+    localStorage.setItem('terms_accepted_date', new Date().toISOString());
+    
+    closeModal();
+    
+}
+
+function declineTerms() {
+    const confirmDecline = confirm(
+        '❌ คุณต้องยอมรับข้อตกลงเพื่อใช้งานระบบ\n\n' +
+        'หากไม่ยอมรับ จะถูกนำกลับไปหน้าเข้าสู่ระบบ\n\n' +
+        'คุณแน่ใจหรือไม่?'
+    );
+    
+    if (confirmDecline) {
+        window.location.href = '/logout';
+    }
+}
+
+{% if show_popup %}
+    window.addEventListener('load', function() {
+        console.log("Showing popup: show_popup is true");
+        
+        if (localStorage.getItem('terms_accepted') !== 'true') {
+            setTimeout(openModal, 500); 
+        } else {
+            console.log("Terms already accepted, skipping modal");
+        }
+    });
+{% else %}
+    console.log("Not showing popup: show_popup is false");
+{% endif %}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('welcomeModal');
+    if (event.target === modal) {
+        if (localStorage.getItem('terms_accepted') !== 'true') {
+            alert('⚠️ กรุณายอมรับข้อตกลงการใช้งานก่อน');
+        }
+    }
+}
+
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+const journalTextarea = document.getElementById('journal');
+const speechButton = document.getElementById('startSpeechBtn');
+
+let isRecording = false;
+
+if (typeof recognition === 'undefined') {
+    if (speechButton) {
+        speechButton.style.display = 'none';
+        console.warn("Web Speech API ไม่ได้รับการรองรับในเบราว์เซอร์นี้");
+    }
+} else {
+    recognition.continuous = false; 
+    recognition.lang = 'th-TH'; 
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function() {
+        isRecording = true;
+        speechButton.classList.add('recording');
+        speechButton.innerHTML = '🔴';
+        journalTextarea.placeholder = 'กำลังฟังเสียงของคุณ... พูดได้เลย';
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        
+        if ((journalTextarea.value.length + transcript.length) > 100) {
+            journalTextarea.value = (journalTextarea.value + transcript).substring(0, 100);
+        } else {
+            journalTextarea.value += transcript;
+        }
+        
+        updateCharCount(); 
+    };
+
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        alert('❌ การแปลงเสียงล้มเหลว: ' + event.error + '\nกรุณาตรวจสอบการอนุญาตใช้งานไมโครโฟน');
+        isRecording = false;
+        speechButton.classList.remove('recording');
+        speechButton.innerHTML = '🎤';
+        journalTextarea.placeholder = '';
+    };
+
+    recognition.onend = function() {
+        isRecording = false;
+        speechButton.classList.remove('recording');
+        speechButton.innerHTML = '🎤';
+        journalTextarea.placeholder = '';
+        console.log('Speech recognition ended.');
+    };
+
+    function startSpeechRecognition() {
+        if (isRecording) {
+            recognition.stop();
+        } else {
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+            }
+        }
+    }
+}
+
+    function showAchievementPopup(achievement) {
+        const popup = document.getElementById('achievementPopup');
+        const icon = document.getElementById('achievementIcon');
+        const title = document.getElementById('achievementTitle');
+        const message = document.getElementById('achievementMessage');
+        
+        icon.textContent = achievement.icon;
+        title.textContent = achievement.name;
+        message.textContent = achievement.message;
+        
+        popup.style.display = 'block';
+        
+        //setTimeout(closeAchievementPopup, 10000);
+        popup.style.display = 'block';
+    }
+    
+    function closeAchievementPopup() {
+        const popup = document.getElementById('achievementPopup');
+        popup.style.display = 'none';
+    }
+    
+    {% if result and result.new_achievements %}
+        {% for achievement in result.new_achievements %}
+            setTimeout(() => {
+                showAchievementPopup({
+                    icon: '{{ achievement.icon }}',
+                    name: '{{ achievement.name }}',
+                    message: '{{ achievement.message }}'
+                });
+            }, {{ loop.index0 * 3000 }}); 
+        {% endfor %}
+    {% endif %}
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const popup = document.getElementById('achievementPopup');
+        popup.addEventListener('click', function(e) {
+            if (e.target === popup) {
+                closeAchievementPopup();
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const modelOptions = document.querySelectorAll('input[name="model_choice"]');
+    
+    modelOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            document.querySelectorAll('.model-option').forEach(opt => {
+                opt.style.borderColor = '#E0E0E0';
+                opt.style.background = '#F9F9F9';
+                opt.style.boxShadow = 'none';
+            });
+            
+            const selectedOption = this.closest('.model-option');
+            selectedOption.style.borderColor = '#FFA500';
+            selectedOption.style.background = '#FFFDE7';
+            selectedOption.style.boxShadow = '0 0 0 2px rgba(255, 165, 0, 0.3)';
+            
+            const isAiMode = document.getElementById('mode_ai').checked;
+            if (!isAiMode) return;
+
+            const analyzeBtn = document.getElementById('submitBtn');
+            if (this.value === 'gemini') {
+                analyzeBtn.textContent = '🤖 วิเคราะห์ด้วย Gemini AI';
+            } else {
+                analyzeBtn.textContent = '🧠 วิเคราะห์ด้วย EaseSpace';
+            }
+        });
+    });
+    
+    const firstOption = document.querySelector('input[name="model_choice"]:checked');
+    if (firstOption) {
+        firstOption.dispatchEvent(new Event('change'));
+    }
+});
+
+function toggleInbox() {
+    const dropdown = document.getElementById('inboxDropdown');
+    if (dropdown.style.display === 'flex') {
+        dropdown.style.display = 'none';
+    } else {
+        dropdown.style.display = 'flex';
+        fetchNotificationsContent();
+    }
+}
+
+function fetchNotificationsContent() {
+        const list = document.getElementById('inboxList');
+        
+        list.innerHTML = '<div style="padding:20px; text-align:center; color:#999;">⏳ กำลังโหลด...</div>';
+
+        fetch('/api/get_notifications')
+            .then(res => res.json())
+            .then(notis => {
+                let html = '';
+                
+                if (notis.length === 0) {
+                    html = '<div class="empty-inbox">📭 ไม่มีข้อความใหม่</div>';
+                } else {
+                    notis.forEach(noti => {
+                        let icon = '📩';
+                        
+                        if (noti.type === 'alert') {
+                            icon = '⚠️'; 
+                        } else if (noti.type === 'news') {
+                            icon = '📰'; 
+                        } else if (noti.type === 'support') {
+                            icon = '❤️'; 
+                        }
+                        
+                        html += `
+                        <div class="inbox-item" id="inbox-${noti.id}">
+                            <div class="inbox-icon">${icon}</div>
+                            <div class="inbox-content">
+                                <span class="inbox-title">${noti.title}</span>
+                                <p class="inbox-msg">${noti.message}</p>
+                                <small class="inbox-time">${noti.time_str}</small>
+                            </div>
+                            <button class="inbox-close-item" onclick="markRead('${noti.id}', event)">×</button>
+                        </div>`;
+                    });
+                }
+                list.innerHTML = html;
+            })
+            .catch(err => {
+                console.error(err);
+                list.innerHTML = '<div class="empty-inbox">❌ โหลดข้อมูลไม่สำเร็จ</div>';
+            });
+    }
+
+document.addEventListener('click', function(e) {
+    const wrapper = document.querySelector('.notification-wrapper');
+    const dropdown = document.getElementById('inboxDropdown');
+    
+    if (wrapper && dropdown && !wrapper.contains(e.target) && dropdown.style.display === 'flex') {
+        dropdown.style.display = 'none';
+    }
+});
+
+function markRead(notiId, event) {
+        if(event) event.stopPropagation(); 
+
+        const item = document.getElementById(`inbox-${notiId}`);
+        if(item) {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(20px)';
+            setTimeout(() => { 
+                item.remove(); 
+                const list = document.getElementById('inboxList');
+                if (list.children.length === 0) {
+                    list.innerHTML = '<div class="empty-inbox">📭 ไม่มีข้อความใหม่</div>';
+                }
+            }, 300);
+        }
+
+        const badge = document.getElementById('notiBadge');
+        if(badge) {
+            let count = parseInt(badge.textContent);
+            if(count > 1) badge.textContent = count - 1;
+            else badge.remove();
+        }
+
+        fetch(`/api/mark_read/${notiId}`, { method: 'POST' });
+    }
+
+function checkEmpty() {
+    const list = document.getElementById('inboxList');
+    if (list.children.length === 0) {
+        list.innerHTML = '<div class="empty-inbox">📭 ไม่มีข้อความใหม่</div>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const moodDefinitions = {
+        '🌞ฟ้าใส': {
+            title: '🌞 ฟ้าใส (Positive)',
+            desc: 'วันนี้คุณรู้สึกสดชื่น มีความสุข มีพลังงานบวก พร้อมรับมือกับเรื่องต่างๆ หรือมีเรื่องราวดีๆ เกิดขึ้น',
+            color: '#FFD700' 
+        },
+        '🌤เมฆขาว': {
+            title: '🌥️ เมฆขาว (Neutral)',
+            desc: 'วันนี้รู้สึกกลางๆ ไม่ดีไม่ร้าย เรื่อยๆ สบายๆ หรืออาจจะมีเรื่องให้คิดบ้างเล็กน้อย แต่ยังโอเคอยู่',
+            color: '#A9A9A9' 
+        },
+        '🌧ฝนพรำ': {
+            title: '🌧️ ฝนพรำ (Negative)',
+            desc: 'วันนี้อาจจะรู้สึกเหนื่อย ท้อ เครียด หรือเศร้าใจ ต้องการการพักผ่อน',
+            color: '#4682B4' 
+        }
+    };
+
+    const moodInputs = document.querySelectorAll('input[name="manual_mood"]');
+    const descBox = document.getElementById('moodDescription');
+
+    function updateMoodDescription() {
+        const selected = document.querySelector('input[name="manual_mood"]:checked');
+        if (selected) {
+            const info = moodDefinitions[selected.value];
+            if (info) {
+                descBox.innerHTML = `
+                    <strong style="color: ${info.color}">${info.title}</strong>
+                    ${info.desc}
+                `;
+                descBox.style.borderLeftColor = info.color;
+                descBox.classList.add('show');
+            }
+        }
+    }
+
+    moodInputs.forEach(input => {
+        input.addEventListener('change', updateMoodDescription);
+    });
+
+    updateMoodDescription();
+});
+
+function updateNotificationBadge() {
+        fetch('/api/notification_count')
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count;
+                const bellBtn = document.querySelector('.bell-btn');
+                let badge = document.getElementById('notiBadge');
+
+                if (count > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.id = 'notiBadge';
+                        badge.className = 'noti-badge';
+                        bellBtn.appendChild(badge);
+                    }
+                    badge.textContent = count;
+                    badge.style.display = 'flex';
+                } else {
+                    if (badge) badge.remove();
+                }
+            })
+            .catch(err => console.error('Error checking notifications:', err));
+    }
+
+    setInterval(updateNotificationBadge, 3000);
+    document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+
+    document.addEventListener('click', function(e) {
+        const wrapper = document.querySelector('.notification-wrapper');
+        const dropdown = document.getElementById('inboxDropdown');
+        
+        if (wrapper && dropdown && !wrapper.contains(e.target) && dropdown.style.display === 'flex') {
+            dropdown.style.display = 'none';
+        }
+    });
+    
+
+
+</script>
+
+{% if new_achievements %}
+<script>
+    var achList = {{ new_achievements | tojson }};
+    achList.forEach(function(achievement, idx){
+        setTimeout(function(){
+            showAchievementPopup(achievement);
+        }, idx*3000);
+    });
+</script>
+{% endif %}
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+        .then(reg => console.log('Service Worker Registered!'))
+        .catch(err => console.log('Service Worker Failed:', err));
+    });
+  }
+</script>
+
+<script>
+    let deferredPrompt;
+    const sidebarInstallBtn = document.getElementById('sidebar-install-btn');
+    const iosPopup = document.getElementById('ios-install-popup');
+
+    function isIos() { 
+        return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) || 
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+    
+    function isInStandaloneMode() {
+        return ('standalone' in window.navigator && window.navigator.standalone) || 
+               (window.matchMedia('(display-mode: standalone)').matches) ||
+               (window.navigator.userAgent.includes('wv'));
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (!isInStandaloneMode() && sidebarInstallBtn) {
+            sidebarInstallBtn.style.display = 'block';
+        }
+    });
+
+    window.addEventListener('load', () => {
+        if (isIos() && !isInStandaloneMode() && sidebarInstallBtn) {
+            sidebarInstallBtn.style.display = 'block';
+        }
+    });
+
+    window.addEventListener('appinstalled', () => {
+        if (sidebarInstallBtn) sidebarInstallBtn.style.display = 'none';
+        deferredPrompt = null;
+    });
+
+    if (sidebarInstallBtn) {
+        sidebarInstallBtn.addEventListener('click', async () => {
+            
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                sidebarInstallBtn.style.display = 'none';
+            } 
+            else if (isIos()) {
+                if (iosPopup) {
+                    closeSidebar(); 
+                    iosPopup.style.display = 'block'; 
+                }
+            }
+            else {
+                alert("📲 วิธีติดตั้ง:\n\nกดเมนูของเบราว์เซอร์ (3 จุด) \nเลือก 'ติดตั้งแอป' หรือ 'เพิ่มลงหน้าจอหลัก'");
+            }
+        });
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const profileBtn = document.querySelector('.profile-toggle');
+        if(sidebar) sidebar.classList.remove('open');
+        if(overlay) overlay.classList.remove('show');
+        if(profileBtn) {
+            profileBtn.style.opacity = '1';
+            profileBtn.style.pointerEvents = 'auto';
+        }
+    }
+</script>
+
+</body>
+</html>
