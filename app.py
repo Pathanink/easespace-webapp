@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory, make_response
 from datetime import datetime, timedelta, timezone
 import os
+
+from dotenv import load_dotenv
+load_dotenv()
+
 import logging
 import threading
 import time
